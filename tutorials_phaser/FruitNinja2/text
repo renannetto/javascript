@@ -1,0 +1,71 @@
+Building a fruit ninja game
+
+In my last tutorial, we started creating a Fruit Ninja game. In our game we already have fruits and bombs, which we can cut. If you cut a fruit, you increase your score, which is shown in the screen. Otherwise, if you cut a bomb, you lose. In this tutorial we will the following content to our game, making it more fun to play:
+ - Player lives, so the player has a number of bombs he can cut before losing
+ - A game over screen, which will show the current score and the highest score so far (the highest score will be saved)
+ - Particle effects when the player cut something, making it visibly more attractive
+ - A special fruit, that stops when you cut it for the first time, allowing you to make more cuts in a row
+To read this tutorial, it is important that you are familiar with the following concepts:
+ - Javascript and object-oriented concepts.
+ - Basic Phaser concepts, such as: states, sprites, groups and arcade physics
+
+Assets copyright
+
+The bomb asset used in this tutorial was made by Alucard under Creative Commons License (http://opengameart.org/content/bomb-2d), which allows commercial use with attribution.
+
+Game states
+
+We will use the following states to run our game:
+ - Boot State: loads a json file with the level information and starts the Loading State
+ - Loading Sate: loads all the game assets, and starts the Level State
+ - Level State: creates the game groups and prefabs
+
+The code for BootState and Loading is exactly the same from the last tutorial, so I will omit them.
+
+The LevelState however, has some changes that were necessary to allow the new content. So, I will show those changes when they are necessary.
+
+Player lives
+
+To make the game work with player lives, we will first create a Lives prefab as shown below. The Lives prefab will have the lives asset texture, but it will be invisible. This way, we can use it to create new sprites with the same texture. This is done in the constructor, where we iterate through each life and create a new Phaser sprite. The position of this new sprite is given by the Lives prefab position plus a spacing, while the texture is the same as Lives prefab. All those sprites are stored in an array, so we can manipulate them later in the "die" method.
+
+The "die" method will be called when the player cuts a bomb. It will decrease the number of lives, kill the last life in the lives array and check the player remaining number of lives. If there are no more lives, it's game over.
+
+Finally, we have to change the "cut" method in the Bomb prefab to call this new "die" method (remember that it was calling "game_over" before).
+
+You can already try playing with the player lives and see if it's working.
+
+Game over screen
+
+Now that we already have player lives, it would be interesting to show a game over screen when the player actually loses, instead of just restarting the game. To make it simple, our game over screen will be only a panel which will be shown over the game, with a game over message, the current score and the highest score so far. We will create a GameOverPanel prefab for that, as shown below. First, we will lower the alpha of our panel, so the player can see the game behind it. Next, we will start a tween animation to show it. The idea is that the panel will come from the bottom of the screen and, when it arrives the top, it will show the game over message, calling the "show_game_over" method.
+
+The "show_game_over" method will add three Phaser texts on the screen for the following information: 1) game over message; 2) current score; 3) highest score. Notice that each text has its own style, which were all passed in the constructor through the properties parameter. Also, the position is calculated using the game world width and height, so it should work with different screen sizes. Finally, "show_game_over" will add an input event to restart the game when the player touches the screen.
+
+We still have to create this GameOverPanel in the LevelState, and we will do that in the "game_over_method". First, we will update the highest score. To save data from your game, you can use the browser localStorage. Any data saved this way will be kept even when the browser is reloaded. So, first we will check if our score is higher than "localStorage.highest_score" (or if there is no highest score yet) and if so, update it.
+
+Next, we have to create GameOverPanel. The texture of this sprite will be a Phaser bitmap, which is a Phaser object with a HTML Canvas, so you can use it like a canvas. Our bitmap will be from the size of the world, and we change its color as we would do with a HTML Canvas. Finally, we set the text style for each one of the GameOverPanel texts, and create it.
+
+You can already try playing with the game over screen to see if it works. Try scoring higher than before and see if highest score is properly updated, even if you reload the browser.
+
+Adding a particle effect
+
+The next thing we are going to add to our game is purely visual, but you will see it adds a lot to the game. Currently, when we cut a fruit or a bomb, it simply disappears, which is kinda weird from the player's point of view. Now we are going to add a particle effect, which will work like a visual feedback to the player, so he automatically understands that he actually cut something.
+
+This will be done changing the "cut" method in Cuttable. We start creating a Phaser emitter in the prefab position and setting the particles asset (you will notice I added a new asset called "particle_image" in the level JSON file). Next we have to set the particles minimum and maximum velocity in both directions, as well as the gravity acting on them. Finally, we start the emitter, telling it how long it should emit and how many particles.
+
+All the values I used as parameters for the emitter methods (such as velocity, number of particles) were decided experimentally by trial and error. This is usually done when we have to decide paremeters in a game, so you should try some values and see which ones fits your game best.
+
+By now, you can already try cutting some fruits and bombs and see the particles visual effect.
+
+Special fruit
+
+The last thing we will add is a special fruit. When the player cut this fruit, it will stop for some time, so the player can keep cutting it and increase the score. To do that, we will create a SpecialFruit prefab as shown below. In the constructor we will create a kill timer, which won't be started until the fruit is cut. Then, in the "cut" method, we increase the player score and check if the kill timer is not running. If that's the case, this was the first cut, so we should stop the fruit (which is done by setting body.allowGravity to false and making the velocity in both directions 0) and start the kill timer. The next time the fruit is cut, the kill timer will already be running, so it will only increase the player score.
+
+There is something important to notice here, though. When the fruit is killed, we expect the object to be reused for the next fruit, so we don't have to create a new object. To allow this, we have to set body.allowGravity back to true and stop the timer in the "kill" method, so it will still be working when it is reused. Also, when we created the timer in the constructor, we set the parameter autoDestroy false, otherwise the timer would be destroyed when there were no more events.
+
+Now that we have our special fruit prefab, we have to create a spawner for it. For that, we will create a SpecialFruitSpawner which will overwrite the "create_object" method to return a SpecialFruit. For the asset I just used a different fruit from our fruits spritesheet. Notice how it was easy to add a new kind of fruit since we have our Cuttable and Spawner generic prefabs. If we wanted to add another kind of fruit (or bomb), we could follow the same process, overwritting only the methods that are different from the original Cuttable and Spawner classes. This makes it much easier to add content to our game.
+
+Finally, our game is done and you can try cutting some special fruits to beat your highest score.
+
+Finishing the game
+
+With that, we finish our game. In the following tutorial we will add a title screen and a new game mode!

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="target.svg">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.35"
+     inkscape:cx="-85"
+     inkscape:cy="520"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1366"
+     inkscape:window-height="716"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       sodipodi:type="arc"
+       style="fill:#ffffff;stroke:none"
+       id="path2989-9"
+       sodipodi:cx="182.85715"
+       sodipodi:cy="232.36218"
+       sodipodi:rx="245.71428"
+       sodipodi:ry="245.71428"
+       d="m 428.57143,232.36218 a 245.71428,245.71428 0 1 1 -491.428562,0 245.71428,245.71428 0 1 1 491.428562,0 z"
+       transform="translate(145.71429,274.28572)"
+       inkscape:export-filename="/home/renan/Dropbox/tutorials/Bomberman2/source/assets/images/target.png"
+       inkscape:export-xdpi="2.5423448"
+       inkscape:export-ydpi="2.5423448" />
+    <path
+       sodipodi:type="arc"
+       style="fill:none;fill-opacity:1;stroke:#800000;stroke-width:75;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="path2989"
+       sodipodi:cx="182.85715"
+       sodipodi:cy="232.36218"
+       sodipodi:rx="245.71428"
+       sodipodi:ry="245.71428"
+       d="m 428.57143,232.36218 a 245.71428,245.71428 0 1 1 -491.428562,0 245.71428,245.71428 0 1 1 491.428562,0 z"
+       transform="translate(145.71429,274.28572)"
+       inkscape:export-filename="/home/renan/Dropbox/tutorials/Bomberman2/source/assets/images/target.png"
+       inkscape:export-xdpi="2.5423448"
+       inkscape:export-ydpi="2.5423448" />
+    <path
+       sodipodi:type="arc"
+       style="fill:none;stroke:#800000;stroke-width:75;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="path2989-8"
+       sodipodi:cx="182.85715"
+       sodipodi:cy="232.36218"
+       sodipodi:rx="245.71428"
+       sodipodi:ry="245.71428"
+       d="m 428.57143,232.36218 a 245.71428,245.71428 0 1 1 -491.428562,0 245.71428,245.71428 0 1 1 491.428562,0 z"
+       transform="matrix(0.52585119,0,0,0.52585119,232.41579,384.45997)"
+       inkscape:export-filename="/home/renan/Dropbox/tutorials/Bomberman2/source/assets/images/target.png"
+       inkscape:export-xdpi="2.5423448"
+       inkscape:export-ydpi="2.5423448" />
+    <path
+       sodipodi:type="arc"
+       style="fill:none;stroke:#800000;stroke-width:75;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="path3777"
+       sodipodi:cx="-567.14288"
+       sodipodi:cy="553.79077"
+       sodipodi:rx="24.285715"
+       sodipodi:ry="24.285715"
+       d="m -542.85717,553.79077 a 24.285715,24.285715 0 1 1 -48.57143,0 24.285715,24.285715 0 1 1 48.57143,0 z"
+       transform="matrix(0.79190752,0,0,0.79190752,777.69615,68.096826)"
+       inkscape:export-xdpi="2.5423448"
+       inkscape:export-ydpi="2.5423448"
+       inkscape:export-filename="/home/renan/Dropbox/tutorials/Bomberman2/source/assets/images/target.png" />
+  </g>
+</svg>

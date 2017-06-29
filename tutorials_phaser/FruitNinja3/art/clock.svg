@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="clock.svg">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.49497475"
+     inkscape:cx="-102.7314"
+     inkscape:cy="569.46936"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1366"
+     inkscape:window-height="716"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       sodipodi:type="arc"
+       style="fill:#b3b3b3;stroke:#000080;stroke-width:15;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="path2987"
+       sodipodi:cx="398.57144"
+       sodipodi:cy="488.07648"
+       sodipodi:rx="135.71428"
+       sodipodi:ry="135.71428"
+       d="m 534.28572,488.07648 a 135.71428,135.71428 0 1 1 -271.42856,0 135.71428,135.71428 0 1 1 271.42856,0 z"
+       transform="translate(10.99823,146.63482)"
+       inkscape:export-filename="/home/renan/Dropbox/tutorials/FruitNinja3/source/assets/images/clock.png"
+       inkscape:export-xdpi="8.740344"
+       inkscape:export-ydpi="8.740344" />
+    <path
+       style="fill:none;stroke:#000080;stroke-width:15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 410.77397,635.42557 0,-126.42857"
+       id="path3757"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/renan/Dropbox/tutorials/FruitNinja3/source/assets/images/clock.png"
+       inkscape:export-xdpi="8.740344"
+       inkscape:export-ydpi="8.740344" />
+    <path
+       style="fill:none;stroke:#000080;stroke-width:15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 410.77397,635.74258 -101.07143,-10e-6 -25.35714,0"
+       id="path3757-4"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccc"
+       inkscape:export-filename="/home/renan/Dropbox/tutorials/FruitNinja3/source/assets/images/clock.png"
+       inkscape:export-xdpi="8.740344"
+       inkscape:export-ydpi="8.740344" />
+    <path
+       style="fill:#000080;stroke:#000080;stroke-width:1.24583769px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 464.60856,452.39406 c -10.54163,9.80528 -26.30364,36.70962 -27.02236,41.44875 l 76.70299,43.49652 c 4.33032,-1.49018 27.0497,-33.91421 26.79142,-41.09449 -7.18467,-16.25478 -57.7928,-44.92406 -76.47205,-43.85078 z"
+       id="path3781-5"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="/home/renan/Dropbox/tutorials/FruitNinja3/source/assets/images/clock.png"
+       inkscape:export-xdpi="8.740344"
+       inkscape:export-ydpi="8.740344" />
+    <path
+       style="fill:#000080;stroke:#000080;stroke-width:1.24583769px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 284.25863,493.43325 c 3.22081,14.03197 18.63965,41.13444 22.38449,44.12644 l 76.02059,-44.67848 c 0.87463,-4.49526 -15.84572,-40.38283 -22.19316,-43.7493 -17.66939,-1.90528 -67.80178,27.588 -76.21192,44.30134 z"
+       id="path3781-5-0"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="/home/renan/Dropbox/tutorials/FruitNinja3/source/assets/images/clock.png"
+       inkscape:export-xdpi="8.740344"
+       inkscape:export-ydpi="8.740344" />
+  </g>
+</svg>

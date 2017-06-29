@@ -1,0 +1,12 @@
+{
+    "number_of_pokeballs": [
+        {"number": 3, "probability": 0.2},
+        {"number": 2, "probability": 0.5},
+        {"number": 1, "probability": 1.0}
+    ],
+    "type_of_pokeball": [
+        {"type": "pokeball", "probability": 0.5},
+        {"type": "greatball", "probability": 0.8},
+        {"type": "ultraball", "probability": 1.0}
+    ]
+}

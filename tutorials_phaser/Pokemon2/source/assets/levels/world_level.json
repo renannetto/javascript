@@ -1,0 +1,26 @@
+{
+    "assets": {
+        "map_tileset": {"type": "image", "source": "assets/images/open_tileset.png"},
+        "draros_image": {"type": "image", "source": "assets/images/draros.png"},
+        "penguine_image": {"type": "image", "source": "assets/images/penguine.png"},
+        "spinron_image": {"type": "image", "source": "assets/images/spinron.png"},
+        "trainer_spritesheet": {"type": "spritesheet", "source": "assets/images/trainer.png", "frame_width": 16, "frame_height": 16},
+        "pokedex_image": {"type": "image", "source": "assets/images/pokedex.png"},
+        "pokeball_image": {"type": "image", "source": "assets/images/pokeball.png"},
+        
+        "world_tilemap": {"type": "tilemap", "source": "assets/maps/world.json"}
+    },
+    "groups": [
+        "spawners",
+        "spawns",
+        "trainers",
+        "buttons",
+        "hud",
+        "pokemon_sprites"
+    ],
+    "map": {
+        "key": "world_tilemap",
+        "tilesets": ["map_tileset"]
+    },
+    "pokemon_probabilities": "assets/levels/pokemon_probabilities.json"
+}

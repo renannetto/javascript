@@ -1,0 +1,68 @@
+Suppose you're building a platformer game, where the hero can walk, jump and attack. The hero can jump while standing or walking, but he can't attack while jumping. Also, the player can not jumping again while it is in the air (no double jumping).
+
+We can start implementing the hero code as below. Depending on your coding experience, you may have noticed that this code is troublesome. To know if the player is jumping (and therefore, keeping it from attacking), we have to save its state in a variable, which says if the hero is jumping or not. Now, suppose we want the player to be able to block attacks, but only when he is standing without walking, jumping or attacking. We would have to add another variable to keep track of that. In addition, suppose we want to change the hero animation when it is jumping, blocking or attacking. You may already have noticed that it will be extremely difficult to manage this code as we increase the size of our game.
+
+To handle such problem, there is a structure called state machine (https://en.wikipedia.org/wiki/Finite-state_machine), which can efficiently model what we want in our game: an object that may assume different states during its life. In this tutorial, I will explain how to use a state machine to manage an object behavior and animations in your games.
+
+First, I will explain the basics of state machines, for those not familiar with this concept. Then, I will show a possible code implementation, which will be used in a platformer demo.
+
+To read this tutorial, it is important that you're familiar with the following concepts:
+ - Javascript and object-oriented concepts.
+ - Basic Phaser concepts, such as: states, sprites, groups and arcade physics
+ - Creating maps using Tiled
+
+What is a state machine?
+
+A state machine is a mathematical model used to represent states and transitions between those states. Besides the fancy name, state machines are simple things, and I will explain them using our hero example. The figure below shows the state machine that controls our hero. In this figure, the circles are the possible states that our hero can be, while the arrows represent transitions between them. The text over the arrows are the necessary input (in our case actions) to execute that state transition. And that is it, the hero must start in an initial state (for example, standing), and constantly verifies the input to execute any necessary transitions (such as walk and jump).
+
+For example, if our hero is standing, and it receives a walk input, it should change to the walking state. On the other hand, if it is in the standing or walking states and receives a jump input, it must go to the jumping state. You may have noticed that the variables we used in the previous code to keep track of what the hero was doing (such as jumping or standing) were playing the role of the states. By using a state machine we can encapsulate all the hero behavior in their respective states, keeping the code cleaner and easier to manage.
+
+The state machine code
+
+Now that you know what is a state machine, it is time to write the code for ours. Remember that this is my suggestion of code, and you can implement yours the way you think it better fits your game.
+
+Let's start by writing the code for the StateMachine class, which is shown below. A state machine has a set of states, which can be added by the "add_state" method. Each state is identified by its name (for example: standing, walking, jumping and attacking), and we can set the initial state by the "set_initial_state" method. The "handle_input" method must be called every time a new input is available (represented by the "command" variable). The current state will handle this input and will return the next state. If the next state is different from the current one, we must exit the current state, and enter the new one. 
+
+The State class code is shown below. By default, any state contains its name and does nothing in the "enter", "exit" and "handle_input" methods. This is just the base class which will be extended by the states of our hero. 
+
+The Command class is shown below. It will simply be an object with a name to identify it and a set of properties. Those properties can be used to properly handle transitions. For example, our "walk" command can have the direction to where the hero is walking, so we can properly update its velocity.
+
+Phaser states of our demo
+
+We will save the level data of our demo in a JSON file, which will be read when it starts. The JSON file I'm going to use is shown below. Notice that we must define the assets, groups and map information. 
+
+We're going to use a map created using the Tiled (http://www.mapeditor.org/) level editor. If you're not familiar with Tiled, you can check one of my previous tutorials, where I cover it with more details (https://gamedevacademy.org/platformer-tutorial-with-phaser-and-tiled/). This is the map I'm going to use. You can use this one, provided in the source code or create your own. However, if you create your own map, you must be careful of two things: 1) you must set a property named "collision" to be true to any layers that are collidable; 2) you must define the hero object properties as shown below. 
+
+Our demo will have three states: BootState, LoadingState and DemoState. The code for BootState and LoadingState is shown below. Both are responsible for reading the JSON level file and loading all assets, before calling DemoState.
+
+DemoState must load the map with all its prefabs. To do that, first it will initialize the map in the "init" method. Then, in the "create" method it will create all groups, map layers and prefabs. Notice that we use the "collision" property in the map layers to check if they are collidable. The "create_object" is used to create each prefab according to its type. The types are stored in the "prefab_classes" property, which is used to call the correct constructor. Notice that this is possible because all prefabs have the same constructor, as shown in the Prefab base class below.
+
+Hero states
+
+Now that we have our state machine implemented, we're going to create the states of our hero. In this tutorial I'll show the standing, walking and jumping states. I'll leave the attacking state (and any other you may think of) as an exercise, since it's similar to what we're doing for the other states. All states will extend the State base class, and will implement the necessary methods.
+
+For example, the code below shows the StandingState. In its enter method it must set the hero frame to the standing frame and the velocity to 0. In the "handle_input" method it checks for the "walk" and "jump" commands. Notice that the "walk" command has a "direction" property so we can know if the player is moving left or right.
+
+The WalkingState contains the walking animation and walking speed, as shown below. In its "enter" method it will play the walking animation and set the hero velocity. In the "exit" method it will only stop the animation. We're not going to set the velocity to 0 in the "exit" method so the player can keep moving when it goes from the walking state to the jumping state. Finally, in the "handle_input" method it checks for the "stop" and "jump" commands.
+
+Finally, JumpingState has the jumping speed, which is applied to the velocity in its "enter" method. The only command it checks in the "handle_input" method is the "fall" command.
+
+The hero prefab
+
+Now that we have the hero states, we can create its prefab as shown below. In the constructor, we create the state machine, adding all its states and setting the initial state. We also add callbacks to the keyboard events "onDown" and "onUp". These callbacks will be used to check user input and send commands to the state machine.
+
+The "process_on_down_input" and "process_on_up_input" show those callback functions. We use the keyCode to identify the user input and create the new command accordingly. Notice that when we issue the "walk" command we must specify the direction.
+
+Finally, in the "update" method we check if the player is touching a ground tile and issue the "fall" command accordingly.
+
+Now we can play our demo and move our hero using the state machine!
+
+Possible extensions
+
+Even though our demo is complete, there are several extensions you can make. First, you can improve our state machine to allow the hero to change direction while jumping or even double jump. You can also issue the commands in the "update" method by checking the keys that are pressed, to see the difference.
+
+Try adding new states, like an invincible state when the hero gets a powerup item. Also, suppose that you want to create an item that changes the hero attack. You don't want to check if the hero has collected this item every time in the attack state. So, you can create another state machine only to handle this new attack when it is available, and issue commands simultaneously for the two state machines. Therefore, there are endless possibilities.
+
+Finally, the main limitation of state machines is that sometimes they are too simple, and may not be suitable for complex AI. In this case, you can try different models, such as pushdown automatas (https://en.wikipedia.org/wiki/Pushdown_automaton) and behavior trees (http://web.archive.org/web/20140402204854/http://www.altdevblogaday.com/2011/02/24/introduction-to-behavior-trees/).
+
+And that concludes our state machines tutorial. Tell me your opinion and questions in the comments section!

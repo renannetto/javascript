@@ -1,0 +1,10 @@
+{
+    "assets": {
+        "dungeon_tileset": {"type": "image", "source": "assets/images/terrains.png"},
+        "hero_spritesheet": {"type": "spritesheet", "source": "assets/images/player.png", "frame_width": 31, "frame_height": 30}
+    },
+    "groups": [
+        "doors",
+        "heroes"
+    ]    
+}

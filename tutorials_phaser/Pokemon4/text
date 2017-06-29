@@ -1,0 +1,72 @@
+In the previous tutorial we finished adding the gameplay content to our game. Now, in this last part of the Pokemon GO tutorial series, we are going to add Google and Facebook authentication, to allow saving the game data on an online database. We are going to use Firebase (https://firebase.google.com/) as the framework for authentication and online storage. The following topics will be covered in this tutorial:
+ - Creating a Firebase app
+ - Adding Google authentication
+ - Creating an app as Facebook developer
+ - Adding Facebook authentication
+ - Adding online storage
+To read this tutorial, it is important that you are familiar with the following concepts:
+ - Javascript and object-oriented concepts.
+ - Basic Phaser concepts, such as: states, sprites, groups and arcade physics
+ - Creating maps using Tiled
+
+Creating Firebase app
+
+Firebase (https://firebase.google.com/) is a Google framework that provides different functionalities for web and mobile apps, such as authentication, realtime database, analytics and cloud messaging. We are going to use it only for authentication and for the realtime database, but you can check their documentation for examples of other features (https://firebase.google.com/docs/samples/).
+
+The first thing we have to do is creating a Firebase account and a new Firebase app. In the image below I created a Firebase app called Phasermon GO. Then, by clicking on "Add Firebase to your web app" the console will show how to add Firebase to your app code.
+ 
+For this tutorial, we are going to add the script tag in the index.html file, while the config variable and the initialization will be done in main.js. For now, you can try running your game and checking if there is no Firebase error.
+
+Disclaimer: for some reason Firebase is not working for Google Chrome in my computer. So, if you experience issues with it, trying running it on Firefox to see if it is a browser related issue.
+
+Adding Google authentication
+
+Now, we are going to add Google authentication to our game. First, we must enable it in the Firebase console, by going to the Authentication section in the menu, and then the Sign-in Method tab. Then, we enable Google authentication.
+
+Now we are going to change our TitleState to allow authentication. For now we are going to simply change the input event to start the login procedure. Later, when we add Facebook authentication, we will create buttons for the different login types.
+
+The "login" method will start by checking if there is a current user authenticated with Firebase. If so, it will simply start the game. If not, it will create a new GoogleAuthProvider to perform the authentication. The next step is to add a scope, which will define the amount of data from the user account our app will have access. In this tutorial our app will only have access to the user email address (using the scope https://www.googleapis.com/auth/userinfo.email). Finally, we call the "signInWithPopup" method, which will open a popup window for the user to authenticate with its Google account. The "then" and "catch" methods add callbacks to when the operation concludes succesfully and when it fails, respectively.
+
+When the user authenticates succesfully, the "start_game" method is called, which will simply start the game as before. On the other hand, if the authentication fails, we need to handle the error. In this tutorial we are only going to add a function in Utils.js to print the error message. In a real app, you can try identifying the error cause and dealing with it, when appropriate.
+
+Adding Facebook authentication
+
+Before storing the game content in the online database, we are going to add Facebook authentication as well. The first thing we have to do is creating a Facebook app in Facebook for developers (https://developers.facebook.com/). You will need a Facebook account, and you might have to add a phone number or credit card number in order to verify your account. 
+
+The next step is enabling Facebook authentication on Firebase. This is similar to how we did with Google authentication, but we need to add our App ID and App secret. 
+
+The last step is enabling your Facebook app to be authenticated by Firebase. To do that, first we need to copy the OAuth redirect URI shown in the authentication page (https://phasermon-go.firebaseapp.com/__/auth/handler). Then, back in the Facebook for developers console, we need to add a Facebook Login product (by clicking on Add Product). In the Facebook Login settings page we need to add the Firebase OAuth redirect URI as a valid one.
+
+Now that we have enabled Facebook authentication, we need to change our code to allow the player to choose to authenticate with Google or Facebook.
+
+In order to do that, we are going to create a LoginButton Prefab. The only difference between the code to login with Google or Facebook is the authentication provider and the scope string. So, LoginButton will have as properties both the provider and the scope. In order to select the provider object correctly, it will have an object to map each login type to the provider Object. In the end of the constructor we add an input event to call the "login" method.
+
+The "login" method is almost the same as the previous one from game state, but now we are going to use the provider and scope from the Prefab properties. If the player autheticates succesfully, it calls the "start_game" method from game state as before. 
+
+Now, in game state we need to remove the "login" method and leave only the "start_game" method. We also are going to remove the input event from the game, since now the authentication will be done through the login buttons.
+
+Also, remeber to add the login button objects in the JSON level file of TitleState.
+
+By now you can try running your game and try authenticating with both Google and Facebook. However, if you use your Google email for Facebook, you can't authenticate with both at the same time. In this case, you will need to go to the authentication settings in Firebase and remove the Google user in order to authenticate with Facebook.
+
+Saving game data online
+
+Until now we are saving in the game the number of pokeballs of the player and caught pokemon. However, when the game restarts we lose this information and need to reset it to a default value. So now we are going to save it using Firebase online storage features. Firebase saves data as JSON objects, so it is very easy to use and integrate it in our code. 
+
+In order to do that we are going to add code to TitleState and change LoginButton callback method. Now, when the player succesfully authenticates, our code is going to call an "on_login" method from TitleState. This method will retrieve the current player data before starting the game.
+
+We can navigate through Firebase data using the "ref" method and the "slash" symbol to access object properties. Our app will have a root object called "users". This object will have a property (called child in Firebase) for each player. This child will have the data for that specific player. So, in the "on_login" method we navigate to the current user object and retrieve its data. Firebase asynchronously manipulates data, so we need to add a callback to an event. In this case we are going to use the "once" event with the "value" parameter, which calls the callback method only the first time this data changes in the database (you can learn more on Firebase documentation https://firebase.google.com/docs/). We are going to use it to retrieve the initial data for this player in the database.
+
+The callback for the database operation is "start_game". We are also going to change this method to save the player data before starting the game. The "val" method retrieves the data as a JSON object. There are two possibilities for this data: if it is the first time this player authenticates, the data will be null, and we need to initialize it with the default values. Otherwise, we simply save the data from the database. In the end, we start the game as before.
+
+The last thing we have to do is update Firebase every time this data changes. This is done in the Pokeball and Pokemon prefabs.
+
+In the "throw" method of the Pokeball prefab we need to update the "number_of_pokeballs" object in the database every time a pokeball is used. We do that by navigating to this object and calling the "set" method, which replaces the object in the database with a new one.
+
+Similarly, in the "catch" method of Pokemon prefab we update the "caught_pokemon" object every time a new Pokemon is caught.
+
+Finally, we need to remove the default data initialization from main.js.
+
+Now you can try playing the game with the database feature. Try catching some Pokemon and throwing some pokeballs to see if the data is updated when the game restarts.
+
+And this concludes this tutorial series. I hope you liked it, and leave in the comment section suggestions for the next ones!

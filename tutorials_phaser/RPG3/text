@@ -1,0 +1,75 @@
+In the last tutorial we added a WorldState where the player can navigate and linked it with the BattleState created in the first tutorial. Now, we are going to improve our BattleState, to include the following:
+ - Battle reward including experience and items
+ - A level system based on an experience table
+ - The possibility of using items during the battle
+ - Magic attacks along with the current physical attacks
+To read this tutorial, it is important that you are familiar with the following concepts:
+ - Javascript and object-oriented concepts.
+ - Basic Phaser concepts, such as: states, sprites, groups and arcade physics
+ - Creating maps using Tiled
+
+Assets copyright
+
+The monsters assets used in this tutorial are available in http://opengameart.org/content/2d-rpg-enemy-set and were created by the following artists: Brett Steele (Safir-Kreuz), Joe Raucci (Sylon), Vicki Beinhart (Namakoro), Tyler Olsen (Roots). The characters assets are available in http://opengameart.org/content/24x32-characters-with-faces-big-pack and were created by Svetlana Kushnariova (email: lana-chan@yandex.ru). All assets are available through the Creative Commons license.
+
+Adding the battle reward
+
+We will start by adding a battle reward for each enemy encounter. To simply things, the reward will be always the same, but you can add multiple rewards with different probabilities using a strategy similar to the enemy encounters. 
+
+The reward will be described in the level JSON file with the enemy encounters data, as shown below. Notice that we are decribing the experience, which will be used to increase the player units levels and the items that will be obtained from that encounter.
+
+Increasing the player units experience
+
+We will use the same experience table for all player untis, which will define the necessary experience to reach each level and the correspondent stats increase. This table is defined in a JSON file as shown below. Notice that I used the same stats increase for all levels without considering the game balance, but you should use the ones you find best.
+
+This experience table must be loaded in the "preload" method of BattleState, and initialized in its "create" method, as shown below.
+
+To add experience and levels to the player units we will add a "receive_experience" method for the PlayerUnit prefab. This method is shown in the code below and increase the unit experience. Then it checks if the current experience is enough to reach the next level. This is done using the experience table loaded in the game state. When a new level is reached, the stats are increased according to what is defined in the experience table. Also, the experience is reseted to zero when a new level is reached.
+
+Finally, we must add the experience reward from each encounter in the "end_battle" method, as shown below. This can be done by dividing the experience for each player unit, and calling the "receive_experience" method for each one.
+
+Now, you can already try playing and check if the player units are receiving the correct amount of experience during the battles.
+
+Adding items and an inventory
+
+We will create Inventory and Item prefabs to represent the game items the player can carry and use during the battles. After we finish creating the items, we will add menus to the BattleState to allow the player to use those items.
+
+First, the Inventory prefab is shown below. It will have a list of items and methods to collect and use items. The "collect_item" receives an object with the item type and properties, and instantiate the appropriate item prefab, adding it to the list. The "use_item" method consumes the item, removing it from the items array.
+
+Now, we are going to create the item prefabs. First, we will create a generic Item prefab, which all items will extend. Initially, this prefab will only have an "use" method which destroys itself.
+
+After creating the Item prefab, we can create a Potion prefab, as shown below. The potion will have a health power, and must implement the "use" method to increase the health of the target player unit.
+
+Finally, in the "end_battle" method we must collect the items obtained from defeating the enemies. This can be done by iterating through all the items in the reward and calling the "collect_item" from the inventory.
+
+Now, you can already try playing and check if the items are being correctly collected. Since there are no gameplay difference yet, you would have to print some information in the console to check this.
+
+Using the items during the battle
+
+To use the items, we will add an item action to the actions menu. When it is selected, it will show the available items to be used. Since we must alternate through menus, we will add methods to hide and show in the Menu prefab, as shown below.
+
+Now, we must create the items menu and add the Item action in the actions menu. The items menu will be created in the Inventory prefab, by iterating through all its items to create menu items, in a similar way as done to create the units menus. To add the Item action, we must change the "show_player_actions" method in BattleState to add it, as shown below.
+
+Notice that in those menus we used two new menu item prefabs: ItemMenuItem, used to select items to use and IventoryMenuItem, used to select the Item action. Both prefabs are shown below. The ItemMenuItem must disable the items menu and enable the player units menu to select the player unit in which the selected item will be used. On the other hand, the InventoryMenuItem must disable and hide the actions menu, while showing and enabling the items menu. Notice that the IventoryMenuItem can be selected only when there are remaining items.
+
+There are some more things we must change. First, we must change the PlayerMenuItem "select" method to use the current selected item. Second, we must implement the "kill" method from the Item prefab to remove it from the items menu. Both modifications are shown below.
+
+Finally, we must keep the inventory through the BattleState and WorldState. This can be done by adding a new parameter in the "init" method of both states that saves the inventory and which will be used in every state transition. In addition, if there is no inventory created yet (at the beginning of the game), we must create an empty one in the "create" method of BattleState.
+
+Now, you can already try playing using items. Remember to check if all menus are working correctly and if the item rewards are being updated properly.
+
+Adding magic attacks
+
+Our last modification will add a new possible attack for each unit, called magic attack. Those attacks will be based on a new stat and will have increased damage, but will consume mana.
+
+To do that, first we must change our attack code to put it in a new Attack prefab, as shown below. The Attack prefab will have an owner unit, which represents the unit which is attacking and initially contains a "show_message" method, which will show the attack message, as we were already doing. Now, we are going to create a PhysicalAttack and a MagicAttack prefabs which will extend this one and implement a "hit" method. This method will execute the attack.
+
+The code for both PhysicalAttack and MagicAttack is shown below. The first one is exactly the attack we already had. It calculates attack and defense multipliers based on the attack and defense stats, respectively, and apply the correct damage. On the other hand, the MagicAttack has three main differences: 1) it has a mana cost; 2) the attack multiplier is based in a magic attack stat; 3) The attack multiplier is higher, which results in increased damage.
+
+Now, we are going to change the Attack menu item to instantiate an Attack prefab and create the Magic menu item. The modification in AttackMenuItem is shown below. Instead of calling the "attack" method in the current unit it simply create a new Attack prefab. The MagicAttackMenuItem code is shown below. It can be selected only when the current unit has enough mana and create a new MagicAttack prefab. Notice that I'm using the same mana cost for all units, but you can change that if you want.
+
+In the next step we must change the HUD to show those new features. First, we change the "show_player_action" method in BattleState to add the Magic menu item, as shown below. Then, we change the PlayerMenuItem prefab to show its remaining mana, and not only its health.
+
+Finally, now you can define the initial mana and magic attack stats for each unit and try playing the game with all its contents. Try using different attacks to see if everything is working properly.
+
+And now, we finished this tutorial series! I hope you liked it, tell me your opinions in the comments section!

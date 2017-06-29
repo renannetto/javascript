@@ -1,0 +1,83 @@
+In the last tutorial we added the Trainer and different Pokemon species to our game. Now we are going to limit the number of pokeballs for the player, and add different types of pokeball with different catching rates. To get new pokeballs the player will have to interact with pokestops. The following topics will be covered in this tutorial:
+ - Limiting the number of pokeballs
+ - Adding different types of pokeball with different catching rates
+ - Adding pokestops where the player can collect pokeballs
+ - Adding a title screen
+To read this tutorial, it is important that you are familiar with the following concepts:
+ - Javascript and object-oriented concepts.
+ - Basic Phaser concepts, such as: states, sprites, groups and arcade physics
+ - Creating maps using Tiled
+
+Limiting the number of pokeballs
+
+The first thing towards limiting the number of pokeballs is initializing it in main.js. Since it will be used by different game states, we will save it in the game object.
+
+Now, in the CatchState we want to show the current number of pokeballs below the pokeball prefab. We can do that by creating a TextPrefab below the pokeball, and setting its text to be the current number of pokeballs.
+
+We need to keep this text updated. So, after throwing a Pokeball we need to decrease the number of pokeballs and update the text.
+
+Also, if the Pokemon is not caught after throwing the Pokeball, we reset the Pokeball to its initial position. We are going to override the reset method to also check if this was the last pokeball. If so, we need to return to WorldState.
+
+Before moving on we need to change the PokemonSpawn prefab to only start CatchState if the current number of pokeballs is greater than zero.
+
+By now you can try playing and checking if CatchState is showing the current number of pokeballs. Try losing all pokeballs to see if it returns to WorldState. Also, try clicking in a PokemonSpawn without pokeballs.
+
+Adding different types of pokeball
+
+Now that we are limiting the number of pokeballs, let's add different types of pokeball.
+
+First, let's change the number of pokeballs to be an object with three different types of pokeball: pokeball, greatball and ultraball.
+
+The other parts of code that use this variable also need to be changed.
+
+For example, in the PokemonSpawn prefab we need to check if the sum of all pokeballs is greater than zero.
+
+In the Pokeball prefab we need to add a "type" property. This property will be used to access the "number_of_pokeballs" object. Also, now in the "reset" method we are going to return to WorldState only if the sum of all pokeballs is zero. If the player is out of only the current pokeball, we change its alpha to 0.5.
+
+Now, in the CatchState level file (catch_level.json) we are going to add the three types of pokeball, each one with its own "type" and "catching_rate" properties. Also, we are going to add a Button prefab called "switch_pokeball", which will call a "switch_pokeball" method in CatchState.
+
+Now we need to implement the logic to switch pokeballs. First, we are going to add an "enable" method to the Pokeball prefab. This method will be called when switching a pokeball, and will change the "visible", "inputEnabled" and "checkWorldBounds" properties. The idea is to make a pokeball visible if it is the current one. Also, we need to enable its events only if its the current one and the number of pokeballs of its type is greater than zero. By default, all pokeballs are disabled in the constructor.
+
+Finally, we need to implement the "switch_pokeball" method in CatchState. But first, in the "create" method we are going to add one array with the pokeball types and one variable with the index of the current one. Then, we enable the first pokeball.
+
+Now the "switch_pokeball" method will simply disable the current pokeball, increment the index (limited by the "pokeball_types" array size) and enable the next pokeball.
+
+By now you can try playing and switching pokeballs. Notice that each pokeball type has its own texture, so you can easily see that they are changing.
+
+Adding pokestops
+
+The next step is adding pokestops where the player can collect new pokeballs.
+
+So, let's start by creating a Pokestop prefab. In the constructor we need to save its properties such as "reset_time" and "detection_radius". We also are going to add an input event to collect pokeballs and create a reset timer, which will be dispatched after every input event.
+
+The "update" method will check if the trainer is close to the pokestop, similarly to what we did with the PokemonSpawn. The only difference is that now we are only going to change the "inputEnabled" property, and the pokestop will be always visible.
+
+The "get_pokeballs" method needs to randomly choose the type and number of pokeballs the player will collect. This will be similar to what we are already doing to spawn Pokemon. So, first we are going to move the code that choose a random Pokemon to the Utils.js file, and put it in a function called "choose_randomly". This method will generate a random number and pick the first element in an array whose probability is greater than the generated random number.
+
+Now, the "get_pokeballs" method will simply make use of this function. First, we are going to change the pokestop tint, to show that it has been used. Then we randomly choose a number of pokeballs to spawn, from an array containing this probabilities. Then, for each collected pokeball, we randomly choose its type, from another array of probabilities. In the end we disable the input events, call a method to show the collected pokeballs and dispatch the reset timer.
+
+The "show_pokeballs" method will create a Phaser.Sprite for each collected pokeball, so that the player can see what he collected. For each sprite we are going to add an event which will kill it after some time.
+
+The "reset_pokestop" method, by its turn, will simply restore the tint value, enable input events and stop the "reset_timer".
+
+Now we need to create the probabilities arrays and add them to our "game_state". The probabilities will be saved in a "pokeball_probabilities.json" file like the following one. There will be two arrays: one for the number of pokeballs and one for the type of each pokeball.
+
+Then, in the "preload" method of WorldState we need to load this text file. Also, in the end of the "create" method we need to parse it as a JSON file and save it in a "pokeball_probabilities" object.
+
+By now, you can try adding a pokestop in your Tiled map and try collecting some pokeballs. Try different configurations of probabilities to check if its working correctly. Also, try collecting pokeballs when the trainer is too far away and when the pokestop is still resetting, to see if it works.
+
+Adding title screen
+
+The last thing we are going to add is a title screen for our game. This will be a very simple one, which will only show the game title and will have an input event to start the game.
+
+TitleState will also be loaded from a JSON file like CatchState. So, we are going to create a JSONFileState which will be responsible for doing that. Then, both CatchState and TitleState will extend it, implementing only the different things. The JSONLevelState will only save the level data, set the game scale, create groups and prefabs.
+
+Now CatchState will only implement its specific behavior, such as: creating the Pokemon prefab, controlling the current pokeball type, and returning to WorldState.
+
+Now, TitleState will simply add an input event in the end of the "create" method. This event will start WorldState, in order to start the game.
+
+The last thing we have to do is creating the JSON file for TitleState. This level will only have the title message and a start message.
+
+By now you can try playing the game with the title screen, and checking if its's correctly starting the game.
+
+And that concludes this tutorial. In the next (and last) one, we are going to save the player pokeballs and caught Pokemon in an online database. Also, we will need to add authentication in order to access the saved data.

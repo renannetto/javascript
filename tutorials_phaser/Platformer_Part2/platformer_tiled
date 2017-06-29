@@ -1,0 +1,59 @@
+Building a platformer game using Phaser and Tiled - Part 2
+
+In my last tutorial, we built a platformer game using Phaser and Tiled. In the following two tutorials we will add content to this game, making it more complete. In this tutorial, the following content will be added:
+ - Bigger levels, and two of them, so we can use the multilevel feature we implemented in the last tutorial.
+ - Smarter enemies, that don't fall from platforms.
+ - A new enemy, which follows the player when you get close to it.
+ - Player score, which will be increased when the player kill enemies or collect coins.
+ - A checkpoint, so if the player dies after reach it, it will be respawn at the checkpoint position.
+For this tutorial, it is necessary that you finished the last tutorial (http://www.gamedevacademy.org/platformer-tutorial-with-phaser-and-tiled/), since we will continue from the code we already wrote.
+
+Game States
+
+In this tutorial, we will use the same states from the last one:
+ - Boot State: loads a json file with the level information and starts the Loading State.
+ - Loading Sate: loads all the game assets, and starts the Level State.
+ - Tiled State: creates the map and all game objects.
+
+The code for Boot and Loading states are exactly the same as before, so I will omit them. On the other hand, the Tiled State code had some changes. Some of those changes are necessary because of the new content added to the game and will be explained throughout the tutorial. However, there is one change that was made to make the code simpler, and I will explain it now.
+
+In the previous tutorial, we had a "create_object" method that used a switch case to instantiate the correct prefab. To avoid having to add another case condition for each prefab we create, we will change it to use an object that maps each prefab type to its constructor, as shown below:
+
+Notice that, in the TiledState constructor we create an object with all prefab types and their corresponding constructors. So, in the "create_object" method we can call the correct constructor using the type information from the map object. This is only possible because all prefabs use the same constructor. So, if you created your prefabs with different constructors you can change them to have the same constructor, or keep using the switch case strategy, as in the previous tutorial. Remember that all code I show here is based on my preference, and you should write it the way you think it's best.
+
+New levels
+
+Those are the two levels I created for this tutorial. Feel free to create your owns, trying to add different tiles and enemies. In those new maps, there are already the new prefabs I will explain later in the tutorial, there is, however, something I would like to show first.
+
+In the first level, I added a bridge between two platforms, as you can see in the image. This bridge sprite is smaller than the tile, and I wanted its collision box to be smaller too. So, I had to add a new tileset using the same tileset image but different tile sizes. The tile size used was 35 pixels width and 11 pixels height with 1 pixel margin. It is also possible to insert the bridge as an object, not a tile, but I found this way easier.
+
+Also, notice that I divided the background layer in two: sky and background. This was done to add some background decoration, like the signs at the beginning and end of the level.
+
+Smarter enemy
+
+We will change our enemy so it switch direction if arrives the edge of platform. The idea is to check if the next ground position is occupied by a tile and, if so, switch the enemy direction. To find this next ground position we have to calculate its x and y coordinates. The y coordinate is just the enemy bottom y plus 1, since that's the y coordinate immediately below the enemy. On the other hand, the x coordinate depends on the enemy direction. So, the x coordinate is the enemy x coordinate plus tile width, if the enemy is moving right, or minus tile width if the enemy is moving left. 
+
+To check if a position is occupied by a tile, we will use the tilemap method "getTileWordlXY", which returns the tile object of a layer in a given position (for more information, check Phaser documentation: http://phaser.io/docs/2.4.3/Phaser.Tilemap.html). If the method returns a tile, we know there is a tile in the ground position in the direction that enemy is moving, so it can keep moving. If it returns null, the enemy must switch direction.
+
+New enemy
+
+We will add an enemy with the following behavior:
+ - If the player is outside a detection range, it will act like a regular enemy.
+ - If the player is inside a detection range, it will increase its velocity and go in the player direction.
+To do that, we will create a new prefab that extends the Enemy prefab. Besides all the regular enemy properties, it will have a detection distance and a running speed. In the update method, we check if the player is inside the detection range. If so, the enemy change its velocity to the running speed and follows the player. Otherwise, it just calls the GroundEnemy update method.
+
+To check if the player is inside the detection range, we calculate the distance between the player and enemy x positions. If the absolute value of this distance is less than the detection distance and both the player and enemy bottom y positions are the same (mening they're standing in the same ground), the enemy detects the player.
+
+Player score
+
+The player score will increase everytime it kills an enemy or collect a coin. For this, we have to add a score property to the Enemy prefab and create a Coin prefab, as follows. For the enemy killing, we just have to increase the player score in the "hit_enemy" method, while for collecting coins we check for overlaps between the player and the coins, and increase the player score according to the coin score.
+
+To show the score in the screen, we create a Score prefab, that extends Phaser.Text instead of Phaser.Sprite. Notice that Phaser.Text extends Phaser.Sprite too, so our prefab still is a Phaser sprite. This Score prefab must be fixed to the camera, so it won't move with the player and in the update method it will change its text to be equivalent to the player current score.
+
+Checkpoint
+
+Our checkpoint will be simple, if the player dies after touching the checkpoint, it will be respawned in the checkpoint position instead of its initial position. For this, we will add a checkpoint prefab that check for overlap with the player, and if that happens, set a checkpoint variable to true. So, in the "restart_level" method from TiledState we now check if the checkpoint was reached. If so, we just respawn the player to the checkpoint position, instead of restarting the level.
+
+Conclusion
+
+And now, our game is working with all this new content! Show me the levels you created, and tell me your opinion about this tutorial. In the next tutorial, we will add lives to our player, some items and a boss level, so tell me if you have any suggestion, too!

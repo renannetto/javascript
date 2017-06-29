@@ -1,0 +1,41 @@
+{
+    "assets": {
+        "background_image": {"type": "image", "source": "assets/images/background.png"},
+        "message_box_image": {"type": "image", "source": "assets/images/message_box.png"},
+        "pokeball_image": {"type": "image", "source": "assets/images/pokeball.png"},
+        "draros_image": {"type": "image", "source": "assets/images/draros.png"},
+        "penguine_image": {"type": "image", "source": "assets/images/penguine.png"},
+        "spinron_image": {"type": "image", "source": "assets/images/spinron.png"}
+    },
+    "groups": [
+        "background",
+        "pokemons",
+        "pokeballs",
+        "hud"
+    ],
+    "collision_groups": [
+        "pokemons",
+        "pokeballs"
+    ],
+    "prefabs": {
+        "background": {
+            "type": "background",
+            "position": {"x": 0, "y": 0},
+            "properties": {
+                "texture": "background_image",
+                "group": "background"
+            }
+        },
+        "pokeball": {
+            "type": "pokeball",
+            "position": {"x": 0.5, "y": 0.8},
+            "properties": {
+                "texture": "pokeball_image",
+                "group": "pokeballs",
+                "anchor": {"x": 0.5, "y": 0.5},
+                "pokeball_speed": 300,
+                "catching_rate": 1.0
+            }
+        }
+    }
+}

@@ -1,0 +1,30 @@
+{
+    "assets": {
+        
+    },
+    "groups": [
+        "hud"
+    ],
+    "prefabs": {
+        "title": {
+            "type": "text",
+            "position": {"x": 0.5, "y": 0.5},
+            "properties": {
+                "anchor": {"x": 0.5, "y": 0.5},
+                "group": "hud",
+                "text": "Phasermon GO",
+                "style": {"font": "32px Arial", "fill": "#FFF"}
+            }
+        },
+        "start_message": {
+            "type": "text",
+            "position": {"x": 0.5, "y": 0.7},
+            "properties": {
+                "anchor": {"x": 0.5, "y": 0.5},
+                "group": "hud",
+                "text": "Tap screen to start",
+                "style": {"font": "20px Arial", "fill": "#FFF"}
+            }
+        }
+    }
+}

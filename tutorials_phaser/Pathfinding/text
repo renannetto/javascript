@@ -1,0 +1,70 @@
+Suppose you're building a strategy game. The game will have player and enemy units which navigate through a map full of obstacles. While the player units will be controlled by clicking on the map positions, the enemies will walk alone, following any AI strategy. You may have noticed that, given an origin and target positions, the units must find a path connecting those two points avoiding any obstacles in the way. In addition, it is important that this path is the shortest as possible. The process just described is called pathfinding and it is used in many games, as well as other AI problems. In this tutorial I'll show how to use a pathfinding library to solve this problem in your game. At the end, we will build a map where we can click to where we want our character to move, and it will find the shortest path from its position to the desired position.
+
+To read this tutorial, it is important that you are familiar with the following concepts:
+ - Javascript and object-oriented concepts.
+ - Basic Phaser concepts, such as: states, sprites, groups and arcade physics
+ - Creating maps using Tiled
+
+What is pathfinding?
+
+Before writing our pathfinder, I'm going to explain by means of an example, what is our goal, and how it can be achieved.
+
+The figure below shows a character in a tile map with obstacles. Suppose we want this character to move to the highlighted position. Some possible paths are highlighted in the map, but we want to find the shortest one. How can we do that?
+
+A common way of solving this problem is to start from the original position and to expand the search range by checking neighbor tiles, while avoiding obstacles, as showed in the example below.
+
+However, we must choose an efficient way of expanding the search range to reduce the time we have to spend looking for a path. By simply expanding to all directions we can guarantee a shortest path, but at a high execution time, since we're expanding to directions that would never lead to the target position. This high execution time would not be noticed for a single path, but in a game where we must constantly calculate paths for several units, this runtime can easily become prohibitively long.
+
+The A* (pronounced as "A star") algorithm is an efficient way of solving the pathfinding problem. The algorithm follows the idea of expanding the search range, but uses an heuristic to efficiently guide the search towards the target position. The idea is to calculate the cost of a tile by its distance to the original position plus an estimation of its distance to the target position. Then, by considering the lowest cost tile when expanding the search range, we can efficiently guide the algorithm. This video (https://www.youtube.com/watch?v=DINCL5cd_w0) compares the A* algorithm with other algorithms that were not designed to handle obstacles, and you can clearly see its efficiency.
+
+The EasyStar library
+
+Instead of writing our own A* code, we are going to use a pathfinding library called EasyStar (http://www.easystarjs.com/). This is an open source library created by Bryce Neal and available through the MIT license, which allows commercial usage. Ther is a github page (https://github.com/prettymuchbryce/easystarjs) where you can check the source code and its usage. In this tutorial, I'll cover the basic methods we'll need for our pathfinding demo.
+
+Creating the Tiled map
+
+The figure below shows the Tiled map I created for this demo. Feel free to create your own or to use mine, provided in the source code. There are only two things you must be careful, because they will be important in our code later. First, all obstacles must be in a layer named collisions, which must have a collision property defined as true, as shown below.
+
+In addition, in the objects layer there must be a player object with its properties defined as below. This will be the character in our demo.
+
+After creating your map, save it in the JSON format.
+
+Phaser states of our demo
+
+The assets, groups and map of our demo will be described in a JSON file, as below. Then, our game will have the following states, responsible for loading this file:
+
+ - BootState: loads the JSON file before calling LoadingState.
+ - LoadingState: loads all game assets, including the JSON map file. After all assets are loaded, it calls WorldState.
+ - WorldState: create the map layers, game groups and prefabs.
+
+The code for BootState and LoadingState are shown below. Notice that the LoadingState uses the asset key from the JSON file to load the correct asset.
+
+The WorldState code is a bit more complex, and it is shown below. In the "init" method it iniatilizes the physics engine and the map. Then, in the "create" method it creates all map layers, game groups and prefabs. Notice when a map layer has the collision property defined as true, as mentioned before, it is defined as collidable.
+
+The "create_object" is used to create all game prefabs. It identifies the prefab class by mapping the prefab type (defined in the Tiled map) to its constructor. This is done using the "prefab_classes" property, defined in the WorldState constructor. The prefab properties are obtained from the properties defined in the Tiled map. Notice that this is possible because all prefabs have the same constructor, shown in the code below.
+
+Creating a Pathfinding plugin
+
+In Phaser you can create plugins that can be easily attached in your games, in a way you can reuse them. In this tutorial, we will write the pathfinding code in a plugin, so you can later use it in your own games. For more information about plugins, you can check Phaser documentation.
+
+The Pathfinding plugin code is shown below. In the "init" we initialize the EasyStar grid, which will be used during A*. EasyStar requires two things: a world grid, representing each tile with an identifier and an array of acceptable tiles, representing the tiles that are not obstacles. Notice that we are using the tile index from Phaser map to create the world grid, which is obtained from the Tiled JSON map.
+
+The "find_path" method is responsible for running EasyStar to find a path from "origin" to "target". This is done by calling EasyStar "findPath" and "calculate" methods. When the path is found, the "call_callback_function" method, which will create an array with all the points in the path and call the appropriate callback function in the correct context.
+
+The remaining methods are helpful to make it easier to use the plugin. For example, the "get_coord_from_point" and "get_point_from_coord" methods convert a grid coord to a point coordinate in the world, and vice versa.
+
+Now, we have to add our plugin in WorldState. This can be done in WorldState "init" method, as shown below. Notice that we pass the map collision layer data as the world grid, and the only acceptable tile is -1. This value is used by Phaser to represent positions without tiles. In practice, that means that any position without an obstacle is acceptable.a
+
+The Player prefab
+
+Now that we have our Pathfinding plugin, we are going to create our Player prefab, which will move to a target location using this plugin.
+
+The Player prefab code is shown below. In the constructor, we initialize the physical body. Since the player sprite is bigger than the tilesed we used (as you may have noticed when building the map in Tiled), we are going to reduce the size of it's physical body using the "setSize" method from the body. Also, we are going to change its anchor point to the center of its physical body, to properly handle movements and collisions.
+
+The "move_to" method will receive a target position and call our Pathfinding plugin to find the path from the current position to the target. When the path is found, the "move_through_path" method is called, which will save the found path and reset the "path_step" variable. The actual movement is done in the "update" method. It moves the player towards the position indicated by the "path_step" variable. If the player has reached that position, it increments "path_step" until all the path is completed. To check if the player has reached a given position, we must consider an error margin as done in the "reached_target_position" method, since the player will not be exactly in the desired position, but close to it.
+
+Finally, we must add in WorldState the code to move the player. We do this by adding an input event in the "create" method as shown below. This input event will call the "move_player" method (also shown below), which will move the player to the position clicked by the mouse. There is one last modification I did in the WorldState, which is showing the player physical body in the "render" method. This method is automatically called by Phaser after updating all objects, and we will use it to show the player body. This is useful to check if the movement and collisions are properly working.
+
+And now, our pathfinding demo is complete. Try moving the player to different positions and check if it is correctly avoiding obstacles.
+
+

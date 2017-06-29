@@ -1,0 +1,15 @@
+{
+    "assets": {
+        "map_tileset": {"type": "image", "source": "assets/images/tiles_spritesheet.png"},
+        "hero_spritesheet": { "type": "spritesheet", "source": "assets/images/player_spritesheet.png", "frame_width": 28, "frame_height": 30, "frames": 5, "margin": 1, "spacing": 1 },
+        
+        "level_tilemap": {"type": "tilemap", "source": "assets/maps/demo_map.json"}
+    },
+    "groups": [
+        "heroes"
+    ],
+    "map": {
+        "key": "level_tilemap",
+        "tilesets": ["map_tileset"]
+    }
+}

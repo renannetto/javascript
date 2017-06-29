@@ -1,0 +1,35 @@
+[
+    {
+        "probability": 0.3,
+        "properties": {
+            "texture": "draros_image",
+            "group": "pokemons",
+            "anchor": {"x": 0.5, "y": 0.5},
+            "frame": 1,
+            "fleeing_rate": 0.3,
+            "species": "Draros"
+        }
+    },
+    {
+        "probability": 0.5,
+        "properties": {
+            "texture": "penguine_image",
+            "group": "pokemons",
+            "anchor": {"x": 0.5, "y": 0.5},
+            "frame": 1,
+            "fleeing_rate": 0.4,
+            "species": "Penguine"
+        }
+    },
+    {
+        "probability": 1.0,
+        "properties": {
+            "texture": "spinron_image",
+            "group": "pokemons",
+            "anchor": {"x": 0.5, "y": 0.5},
+            "frame": 1,
+            "fleeing_rate": 0.5,
+            "species": "Spinron"
+        }
+    }
+]

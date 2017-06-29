@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="20" height="40" tilewidth="16" tileheight="16">
+ <tileset firstgid="1" name="map_tileset" tilewidth="16" tileheight="16">
+  <image source="../images/open_tileset.png" width="160" height="180"/>
+ </tileset>
+ <layer name="grass" width="20" height="40">
+  <data encoding="base64" compression="zlib">
+   eJztw0ENAAAMA6GzUf9G52IvSFg1VVXVhwcNZ04h
+  </data>
+ </layer>
+ <layer name="roads" width="20" height="40">
+  <data encoding="base64" compression="zlib">
+   eJxjYCAM1KikZtS8kW2eOhBbQbEGFcwjxU2j5o2aRw/zrIjABiSIU9t9I808bOFsRIF5xKgbNY808wwZiMsfpNQZ5Lhj1LxR80bNo695AGGEEtc=
+  </data>
+ </layer>
+ <objectgroup name="objects" width="20" height="40">
+  <object name="spawner1" type="pokemon_spawner" gid="71" x="48" y="80">
+   <properties>
+    <property name="group" value="spawners"/>
+    <property name="spawn_range" value="30"/>
+    <property name="spawn_time_max" value="10"/>
+    <property name="spawn_time_min" value="5"/>
+   </properties>
+  </object>
+  <object name="trainer" type="trainer" x="16" y="32" width="16" height="16">
+   <properties>
+    <property name="group" value="trainers"/>
+    <property name="texture" value="trainer_spritesheet"/>
+    <property name="walking_speed" value="25"/>
+   </properties>
+  </object>
+  <object name="pokedex" type="pokedex" x="144" y="304" width="16" height="16">
+   <properties>
+    <property name="group" value="hud"/>
+    <property name="texture" value="pokedex_image"/>
+   </properties>
+  </object>
+  <object name="pokedex_button" type="pokedex_button" x="144" y="576" width="16" height="16">
+   <properties>
+    <property name="callback" value="show_pokedex"/>
+    <property name="group" value="buttons"/>
+    <property name="texture" value="pokeball_image"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>

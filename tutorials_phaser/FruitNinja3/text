@@ -1,0 +1,78 @@
+Building a fruit ninja game
+
+In my last two tutorials we created a Fruit Ninja game and added some content to it. In this last tutorial, we will add a new game mode. This will imply in adding a title screen, refactoring part of our code and adding some extra content. I will cover the following content in this tutorial:
+ - Adding a custom font for all the texts being shown
+ - Adding a new game mode called Time Attack. In this mode, the player must cut as many fruits as possible before the time runs out
+ - Refactoring the code for our states, to reuse between different states
+ - Adding a title screen, where the player can choose between the two game modes
+ - Adding two cuttables prefabs for the Time Attack mode. The first one is a clock, which increases the remaining time when cut, and the second one is a time bomb, which reduces the remaining time when cut
+To read this tutorial, it is important that you are familiar with the following concepts:
+ - Javascript and object-oriented concepts.
+ - Basic Phaser concepts, such as: states, sprites, groups and arcade physics
+
+Assets copyright
+
+The bomb asset used in this tutorial was made by Alucard under Creative Commons License (http://opengameart.org/content/bomb-2d), which allows commercial use with attribution.
+
+Game states
+
+We will use the following states to run our game:
+ - Boot State: loads a json file with the level information and starts the Loading State
+ - Loading Sate: loads all the game assets, and starts the next State
+ - Title State: shows the title screen, allowing the player to choose between the two game modes: Classic and Time Attack
+ - Classic State: runs the game mode we were working in the last two tutorials, in which the player cuts fruits until runs out of lives
+ - Time Attack State: new game mode, where the player cuts fruits until runs out of time
+
+There are a lot of changes in the states codes, since we're going to refactor the code to allow multiple game modes. So, to simplify, I will show the changes as they're necessary.
+
+Refactoring the code for adding multiple game modes
+
+Since we're going to have multiple states, we have to identify common code between them and put it in another state which will be extended. In order to do that, we'll create the following states:
+ - JSONLevelState: loads a JSON file as we were using in the last tutorials, with assets, groups and prefabs
+ - LevelState: represents a generic level. Is responsible for detecting swipes, checking for collisions and showing the score and game over screen
+
+The states hierarchy is shown in the figure below. Notice that TitleState extends JSONLevelState, since we will start it from a JSON file, but it does not extend LevelState, since it's not a game state. On the other hand, both ClassicState and TimeAttackState will extend LevelState, overwriting necessary methods and adding new ones.
+
+The code for JSONLevelState and LevelState are shown below. JSONLevelState has the "create_prefab" method and the code for creating them from the JSON file. LevelState has the "start_swipe", "end_swipe", "check_collision", "init_hud", "game_over" and "restart_level" methods. Notice that the highest score variable may be different according to the game mode, so we have to leave its name as a variable to be set in other state implementations, as you can see in the "game_over" method.
+
+Now, we can write the code for ClassicState, which represents the game mode we already had. Since most of its logic is already in LevelState and JSONLevelState, we only have to set the highest score name and overwrite the "init_hud" method to include player lives, as shown below.
+
+Custom font
+
+We will add a custom font to show all the text content in our game, like title, menu items, and hud. The font we're going to use is available online (http://www.fontspace.com/astigmatic-one-eye-typographic-institute/shojumaru) and allows commercial use (it is also in the assets folder in the source code). To add it to the game, you can simply add a font-face in your index.html file. However, it might not work for all browsers, according to some reports in Phaser's forums. To circumvent this, you can add a style to load the custom font and a div object in your index.html file to force the browser to load the font.
+
+The index.html with both methods is shown below. Notice that we set the "left" property of the .fontPreload style to be -100px, so the div object won't be visible. After doing that, you can simply use the font family name (Shojumaru) in the style property of our text prefabs.
+
+Title screen
+
+The title screen will have the game title and a menu with the game mode options. To do that, we have to create MenuItem and Menu prefabs. The MenuItem will be a text prefab that shows a game mode. When the menu selection is over an item, we will play a tween animation to change the item scale up and down. When the player selects an item, we want it to execute some action, by calling the "select" method. By default, this method does nothing, so we will write new prefabs that will extend MenuItem and overwite this method.
+
+The MenuItem prefab code is shown below. In the constructor, we create a tween animation for the scale object. Then, we add two children to this tween, by calling its "to" method twice, one for increasing the scale and one for decreasing it. Finally, we use to "repeatAll" method to keep the tween repeating after all children are executed. Finally, in the "selection_over" method we start the tween, while in the "selection_out" method we stop it.
+
+Now, we will write the Menu prefab code, which will have a list of items and will navegate through them. The Menu code is shown below. In the constructor, the menu items are received from the properties parameter and the first one is under selection. In the "update" method we check for the directionals to navigate through the items and the spacebar to select the current item. Notice that, when navigating through the items, we have to remove the selection from the current item and change it to the new one. When the spacebar is pressed, we just have to select the current item.
+
+Finally, we can create the TitleState by using the Menu and MenuItem prefabs. The menu items will be loaded from the JSON file, so we just have to add the game title and the menu in the "create" method. The title is simply a text prefab. To pass the menu items to the menu we iterate through the "menu_items" group, saving them in an array, which will be passed to the menu.
+
+You can already run the game with the title screen, to see it working.
+
+Time attack state
+
+Since we already have most of the game logic in the LevelState, the TimeAttackState is easy to implement, as shown below. Notice that, besides setting the highest score variable, we only have to add the remaining time to the hud, which is updated in the "update" method.
+
+To show the remaining time we create a RemainingTime prefab, which is simply a text prefab that shows the remaining time value. To update it, we use "this.game.time.elapsed", which contains the elapsed time since the last update, in milliseconds.
+
+You can already try playing the Time Attack mode with the regular prefabs and see if it's working.
+
+Clock and time bomb
+
+Since we have our generic Cuttable and Spawner prefabs, adding the clock and the time bomb will be easily done as we did with the special fruit in the last tutorial. 
+
+First, we will create the Clock and TimeBomb prefabs, which will extend Cuttable, as shown below. For each one, the only thing we have to do is change the "cut" method. In the Clock prefab, we increase the reamining time by 3 seconds, while in the TimeBomb we decrease it by 5 seconds.
+
+Next, we will create the spawner for both prefabs. Here the only method we have to change is "create_object", which will return a new Clock for the ClockSpawner and a new TimeBomb for the TimeBombSpawner.
+
+Now, you can add the two new spawner in the Time Attack mode and try playing it.
+
+Finishing the game
+
+And that concludes our Fruit Ninja game, tell me our opinion of this tutorial series and what games you would like to see next.

@@ -1,0 +1,80 @@
+Building a fruit ninja game
+
+Fruit Ninja is a game where you have to cut fruits by swiping your cellphone screen while avoiding cutting bombs. In this tutorial, we will build a Fruit Ninja game using Phaser. To read this tutorial, it is important that you are familiar with the following concepts:
+ - Javascript and object-oriented concepts.
+ - Basic Phaser concepts, such as: states, sprites, groups and arcade physics
+ - Concept of Boot and Loading States, as I presented them in my last tutorials
+The following content will be covered in this tutorial:
+ - Reading the whole level (assets, groups and prefabs) from a JSON file
+ - Detect swipes in the screen and checking for collisions with game objects
+ - Differently handle swipes according to the cut object
+
+Assets copyright
+
+The bomb asset used in this tutorial was made by Alucard under Creative Commons License (http://opengameart.org/content/bomb-2d), which allows commercial use with attribution.
+
+Game states
+
+We will use the following states to run our game:
+ - Boot State: loads a json file with the level information and starts the Loading State
+ - Loading Sate: loads all the game assets, and starts the Level State
+ - Level State: creates the game groups and prefabs
+
+The code for BootState and LoadingState is exactly the same I used in my previous tutorials (which is a good reason to write generic code, so you can use in multiple games), so I won't present them here.
+
+The LevelState however, is quite different since now we're not loading the level from a Tiled map, but only from a JSON file, as presented below. As you can see, our JSON file contains the information about assets, groups and prefabs. The assets were already loaded in the LoadingState, so now in the LevelState we only have to create the groups and instantiate the prefabs.
+
+LevelState code is shown below. To create level groups, we just have to go trough all groups in the JSON file. To create level prefabs we need the prefab name, its type, position, texture, group and properties. Then, we go through each one of the prefabs described in our JSON file and call the "create_prefab" method, which will instantiate the correct prefab. To do that, we'll keep an object that maps each prefab type to its correct constructor, as you can see in LevelState constructor. This way, to instantiate a new prefab we check if the type is present in the "prefab_classes" objects, and if so, we call the correct constructor. Notice that this only works because all prefabs have the same constructor.
+
+Detecting swipes
+
+We'll use the following strategy to detect swipes: 
+ 1) When the user touches the screen, we save the touch position as a starting point
+ 2) When the user releases the screen, we save the touch position as a end point
+ 3) If the distance between both starting and end points is greater than a minimum distance, we detect it as a swipe, and create a line between these two points
+
+The code below shows how this works. First, we add onDown and onUp events to the game input. The onDown event will only save the starting point. On the other hand the onUp will save the end point and check if the screen was swiped. To do that we calculate the difference between both starting and end point using Phaser.Point.distance (Phaser already provides some geometric shapes and operations that you can check in the documentation: http://phaser.io/docs#geometry). If we detect a swipe, we create a Phaser.Line with the starting and end point and save the swipe for later collision checking.
+
+We will also create a Cut prefab to show it in the screen. The Cut prefab will extend Phaser.Graphics instead of Phaser.Sprite. This class allows to draw lines in the screen, which we will use to draw the cut. After drawing the line in the prefab constructor, we initialize a timer to kill it after some time, making it disappear.
+
+By now, you can already try making some swipes and checking if the cuts are being properly draw.
+
+Fruits and bombs
+
+We will need Fruit and Bomb prefabs to be cut in our game. However, as you can already imagine, both will have a lot of things in common. So, to avoid code repetition, we will create a generic Cuttable prefab which both Fruit and Bomb will extend and will handle all the common things.
+
+The Cuttable prefab code is shown below. It will have a starting velocity, which will be applied in the constructor. We expect the fruits and bombs to jump on the screen and then start falling, until leaving it. So, we will set both checkWorldBounds and outOfBoundsKill properties to true. Those are Phaser properties that kill a sprite when it leaves the screen, as we want it to work.
+
+Now we can create the Fruit and Bomb prefabs as follows. Notice that we only have to add a "cut" method in each one that will handle cuts. The Fruit prefab will increment a score variable, while the Bomb will end the game. This "cut" method will be called later, when we add the cutting logic. For the Fruit prefab, we will randomly select a frame from the fruits spritesheet, so we can create different kinds of fruits.
+
+Spawning fruits and bombs
+
+To spawn fruits and bombs, we'll do something similar to the Fruit and Bomb prefabs. Since we need one spawner for each cuttable object, we will create a generic Spawner and two more prefabs that will extend it: FruitSpawner and BombSpawner.
+
+The Spawner code is shown below. First, a timer is created and scheduled to spawn the first prefab. The time to spawn is randomly selected between an interval. To generate a random value between two integers, we use Phaser random data generator (for more information, check Phaser documentation: http://phaser.io/docs/2.4.3/Phaser.RandomDataGenerator.html). After the spawn time, the timer calls a "spawn" method, that will create the prefab.
+
+To create prefabs, we will use a pool of objects, as we used in another tutorial. A pool of objects is a group that we keep to reuse old objects instead of create new ones. So, to spawn a new preab, first we query the pool group (which is a Phaser group) for the first dead prefab in it. If there is a dead prefab, we just reset it to the new position and velocity. Otherwise, we create a new prefab using the method "create_object". This method will be added in each Spawner we will create, to return the correct Prefab. After spawning the new prefab, we schedule the next spawn. Also, notice that the position and velocity are randomly defined inside a range, using Phaser random data generator.
+
+The FruitSpawner and BombSpawner prefabs are shown below. We only have to add the "create_object" method, which will return a Fruit prefab for the first spawner and a Bomb in the second one. For the FruitSpawner, we have to create the Fruit with the frames we want to use from the spritesheet. In this tutorial I used frames 20, 21, 23, 35, 38. Try using the ones you find best.
+
+You can already run your game with the spawner and see if it is working correctly.
+
+Cutting fruits and bombs
+
+We still have to make it possible to cut fruits and bombs. Back in our LevelState, we're already detecting swipes. Now, after we detect a swipe we will check if it's colliding with any cuttable object and, if so, cut it. To do that, we go through all living sprites in the fruits and bombs groups calling the "check_collision" method.
+
+The "check_collision" method will check for intersections between the swipe line (which we already have) and each one of the target object boundaries. To do that, we start creating a Phaser.Rectangle with the object body coordinates and size. Then, we build a Phaser.Line for each one of this rectangle edges and check for intersection with the swipe line. To check for intersection, we will use another one of Phaser geometry operations, which check for intersection between two lines.
+
+You can already run your game and see if you can cut the fruits and bombs.
+
+Keeping track of cut fruits
+
+To finish, we have to show the cut fruits during the game. We're already saving the cut fruits, so we just have to add a HUD item to show it. To do that, we will add an "init_hud" method in LevelState. In this method we will create a Score prefab in a fixed position and add it to the HUD group.
+
+The Score prefab code is shown below. We only need an update method to change its text to show the current score, which corresponds to the number of cut fruits.
+
+Now, you can play the game while it shows how many fruits you have already cut.
+
+Finishing the game
+
+With that, we finish our game. In the following tutorials we'll add more content to our game, making it more fun to play.

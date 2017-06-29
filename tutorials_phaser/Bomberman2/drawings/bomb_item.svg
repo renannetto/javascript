@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="bomb_item.svg">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="7.9195959"
+     inkscape:cx="698.20887"
+     inkscape:cy="295.64857"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1366"
+     inkscape:window-height="716"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:#808000;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="rect2996"
+       width="19.681726"
+       height="19.681726"
+       x="691.10596"
+       y="748.66589" />
+    <image
+       y="750.50677"
+       x="692.94684"
+       id="image3804"
+       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAVtJREFU
+OI2Nk8FqwkAQhr8tRdANBVFaTIx6aS8iQmtLDwW9FXrsC0kftFBjkyIoHjQaxTI91GyzRqGzh+zs
+zv/zzTJRgpDGVbVqksl0qvhPCIIMEekjwt+6rFas/NQ6Y6iEATCwjSfTqcoSnQolCAyV8CYWsu/W
+cuJx9JVrS2XfIBU2PZdet/Pb4v56Np/zMf5kFEaW0dmhuP/4wOvLMwANz0XtSwuFAi2/Tvvm2qKz
+DJqey22nTRBGNDzXfJWCC0cDUCoVaXouOQPfrUmv2zGilCAII6sVAEdrQ2ERHIqyZurEVJxnExFy
++EEYIQKLODZ1y8w+R5CapAQp+na7NQWO1scJZvM5AJVy2WAv4tiIV+s1q3ViEVhz8HR/Jy2/frTX
+VJwkG96DwMyCRTAKIxytKZWKtni1BiBJNuy+d9bdyUlM+1zGMY7WLOOY0f5tspOYM8gaHZ4d+xd+
+AEdEyQCIhdpsAAAAAElFTkSuQmCC
+"
+       height="16"
+       width="16" />
+  </g>
+</svg>

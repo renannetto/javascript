@@ -1,0 +1,80 @@
+In a game, the heads-up display (HUD) is how game information is visually showed to the player, providing a feedback from the game. Usually, it provides information about player health or other stats, items and menus. The HUD is very important in many games to make sure the player understands what is happening in the game. Besides, it is highly dependant on the game and during the game development, it is useful to try different HUD strategies in order to find the best one. So, it is important to have a way of easily managing HUD elements in order to try different HUD configurations.
+
+In this tutorial we will create a HUD plugin to manage HUD elements in the game screen. We will then use it by creating a simple Tiled level and some basic HUD elements. To read this tutorial, it is important that you're familiar with the following concepts:
+
+ - Javascript and object-oriented concepts.
+ - Basic Phaser concepts, such as: states, sprites, groups and arcade physics.
+ - Creating maps using Tiled (http://www.mapeditor.org/).
+
+Game states
+
+We're going to keep the game data in a JSON file as shown below. This file describes the game assets that must be loaded, the groups that must be created and the tiled map data. To load this file and setup the game data before it starts we will need three game states: BootState, LoadingState and WorldState.
+
+BootState and LoadingState codes are shown below. The first one simply loads this JSON file and calls LoadingState with the level data. LoadingState, by its turn, load all game assets calling the correct Phaser method according to the asset type (for example, calling "this.load.image" to load an image).
+
+Finally, WorldState (shown below) loads the Tiled map and create the game groups. First, in the "init" method it starts the physics engine and creates the Tiled map from the data in the JSON file. The "create" method, by its turn, creates the map layers, groups and prefabs. 
+
+When creating the map layers we must check if the layer has a collision property as true. If so, we must set this layer as collidable. The "create_object" method is responsible for creating the game prefabs from the map objects. First, it calculates the prefab position considering that Tiled and Phaser coordinate systems are different. Then, it calls the "create_prefab" method, which instantiates the correct prefab according to the "prefab_classes" property. This property is defined in WorldState constructor and maps each prefab type to its correspondent constructor. Notice that this can be done if all prefabs have the same constructor, which is defined in the Prefab class as shown below.
+
+After creating all prefabs, the WorldState only has to initialize the HUD plugin and set the camera to follow the game hero.
+
+The HUD plugin
+
+We're going to create a HUD plugin (using the Phaser plugin class http://phaser.io/docs/2.4.6/Phaser.Plugin.html) to easily manage the HUD elements in the screen. To do this we are going to divide the screen in regions, as shown in the figure below. Each HUD element must be in one region, and a given region may contain several elements. In addition, we should be able to define margins around the screen, so the HUD regions can start in custom positions, as also shown in the figure.
+
+To keep the HUD margins and elements independent from the game, we are going to save this information in a JSON file, which will be read by the HUD plugin. Below is an example of JSON HUD data, which is added to the level JSON file. It defines the HUD margins on all four borders (left, right, top, bottom) and the HUD elements. Each HUD element must specify: its prefab type, which will be used to insantiate the correct prefab (the prefabs in this example will be implemented later in this tutorial); the region that the element belongs; object properties, including the texture, group and custom properties specific to each prefab.
+
+Given the JSON data, the HUD plugin code is shown below. In the "init" method it saves its properties and defines the regions begin and end coordinates, as well as an empty "elements" array for each region. In the end, it calls the "create_elements" method to insantiate all HUD elements.
+
+The "create_elements" method iterates through all elements creating them and adding them to the correct region. The elements are created using the "create_prefab" method from WorldState. That's why we need to define the element prefab type and properties, as we did in the JSON data. Since we don't know beforehand how many elements will be in each region, we start by creating all of them in the beginning of the region, and in the end update the elements positions in the "update_elements_positions" method.
+
+The "update_elements_positions" method receives as a parameter a region and updates its elements positions according to the number of elements in the region. The strategy we are going to use is the following:
+
+ - If there is only one element in the region, it will be placed in the center of the region.
+ - If there are two elements in the region, the first one will be placed in the beginning and the second one in the end of the region.
+ - If there are more than two elements in the region, they will be placed equally spaced along the region
+
+The first two cases are easy to handle, as the code below shows. To deal with the third case, we calculate a step, which will be the space between every pair of elements. This step is given by the region dimensions divided by the number of elements. Then, it iterates through all the elements in the region, updating its positions and increasing the position by the calculated step. After all elements positions have been updated, they must be fixed to the camera, since we don't want them to move as the game screen moves.
+
+Creating the Tiled level
+
+Since the focus of this tutorial is on the HUD plugin, I will not go into details on how to create the map using Tiled (http://www.mapeditor.org/). If you're interested on learning more about Tiled to create your own map, I suggest you read one of my tutorials that explains it with more details (https://gamedevacademy.org/platformer-tutorial-with-phaser-and-tiled/). Otherwise, you can use the map I created, provided in the source code.
+
+The figure below shows the map I'm going to use in this tutorial. If you're going to create your own map the only things you must be careful is: any collidable layer must have a collision property as true (since it was used in WorldState); all prefab properties (include the prefab texture and group) must be defined as object properties, as shown below.
+
+Hero and Item prefabs
+
+Before creating the HUD elements, we are going to create the Hero and Item prefabs, so the hero can walks in the level and collect items.
+
+The Hero prefab code is shown below. It will have as parameters the walking speed and the initial stats. The constructor also enables the hero physical body and creates its walking animation.
+
+In the "update" method we use the keyboard arrow keys to move the hero. Notice that the hero can only move to a given direction if it is not already moving to the opposite direction. Also, since we use the same walking animation for all directions, we have to change the sprite scale when changing from left to right directions.
+
+The Item prefab is shown below. We want to make the item collectible and allow it to change the hero stats when collected. For this, the constructor saves the stats this item changes and initializes its physical body. Then, the "update" method checks for collision with the hero and call the "collect_item" method. The "collect_item" method, by its turn checks what stats this item changes and update them on the hero accordingly. In the end, the item is killed.
+
+By now you can already try running the game without the HUD, to see if the player is moving and collecting items correctly.
+
+HUD elements
+
+Now we can finally create the HUD elements. We will focus this tutorial in creating HUD elements that show the hero stats. For this, we will use a generic ShowStat prefab as shown below, which will be extended by the other HUD elements. This prefab saves the prefab and stat it is going to show in the constructor (for example, if we want to show the hero defense, it will store "hero.defense"). Then, the "update" method checks if the stat has changed since the last update. If so, it calls the "update_stat" method to keep it updated in the ShowStat prefab.
+
+Now that we have the ShowStat prefab, we are going to create the following HUD elements, which will extend it:
+
+ - ShowStatWithText: prefab that will show the value of a stat using a text
+ - ShowStatWithBar: prefab that will show the value of a stat with a bar (like a health bar)
+ - ShowStatWithSprite: prefab that will show the value of a stat with sprites
+
+Before going into the code, there is something important to notice. Remember that in the HUD plugin we first add all elements in the beginning of the region and then reset them to the correct position. Because of that, when can't use the HUD element position before it is resetted because it will be wrong. That's why in the following prefabs we use it on the "reset" method, as you will see.
+
+The ShowStatWithText prefab is shown below. In the "reset" method (when the position is already correct) it creates the text that will show the stat value. Then, in the "update_stat" method it updates the text to show the next stat value.
+
+The ShowStatWithBar is also simple. The only method we have to implement is "update_stat", which will change the prefab scale according to the stat value, making the bar bigger when the stat is greater.
+
+The ShowStatWithSprite prefab is a little more complex. In the "reset" method it shows the initial stats by the "show_initial_stats" method. This method creates a sprite for each value of the stat and add it to an array. 
+
+The "create_new_sprite" method is responsible for creating each sprite. First, it calculates the position of the next sprite from the number of sprites that already exist. Notice that the stat sprites use the same texture as the ShowStatWithSprite prefab, so all sprites have the same width and height. After finding the position, it checks if there is a dead sprite in the stats group. If so, it reuses it by only resetting it to the desired position. Otherwise, it creates a new one.
+
+Finally, the "update_stat" method will be different from the other two HUD elements. First, it checks if the new stat is lower or higher than the previous one. If it is higher, it must create new sprites (using the "create_new_sprite" method) until the new stat value is reached. Otherwise, it must kill the extra stats so as to show the correct stat value.
+
+Now, you can add the HUD elements to your HUD JSON data and see how it works for your game. Try different combinations and see which one looks better!
+

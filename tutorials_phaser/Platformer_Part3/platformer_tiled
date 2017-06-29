@@ -1,0 +1,81 @@
+Building a platformer game using Phaser and Tiled - Part 3
+
+Until now, we created a simple platformer game with some nice content, however there are still some things to add before making it playable. In this tutorial, we will add the following content:
+ - Player lives, so now you can actually lose.
+ - Items that will increase the player lives or give an attack.
+ - A boss level.
+
+Game States
+
+In this tutorial, we will use the same states from the last one:
+ - Boot State: loads a json file with the level information and starts the Loading State.
+ - Loading Sate: loads all the game assets, and starts the Level State.
+ - Tiled State: creates the map and all game objects.
+
+The code for all states are almost the same, except for two methods added in TiledState: one to do the game over and other to initialize the hud. So, I will omit them and only show the changes when they're necessary.
+
+Player lives
+
+Our player will start with a given number of lives, and it will lose one every time it is killed by an enemy. To do that, we will change the Player prefab to have a lives property and the "hit_enemy" method to decrease the number of lives if the player was killed, as follows:
+
+Also, if the player number of lives becomes zero, we will call the "game_over" method in TiledState, instead of "restart_level":
+
+Besides having the player lives, we have to show how many lives the player still have. So, we will create a Lives prefab that belongs to the hud group and show the current player lives. Our Lives prefab will have the player live asset, but it will be invisible, since we will use the asset only to create new sprites showing the player lives.
+
+The Lives prefab will have a "create_lives" method that fills an array with a sprite for each one of the player lives. Since the player live asset is already loaded we can use its width and the Lives prefab position to find the position for each live and draw them on the screen. Finally, in the update method we have to check if the player number of lives has changed and, if so, we call an "update_lives" method.
+
+In the "update_lives" method we assume the number of lives can increase or decrease by only one between two updates. This makes sense because the update method will be called many times per second, and the player can't die or get lives faster than that. So, in the "update_lives" method we only check if the number of lives has decreased or increased. In the first case, we have to kill the last live in the array. In the second case, we'll do some checking to avoid creating too many life objects. First, we check if there is a dead life we can reuse and, if so, we just reset it. Otherwise, we create a new life object.
+
+There are two last things we have to do regarding the player lives and the player score that we didn't do in the last tutorial. First, you'll notice I added an "init_hud" method in TiledState that create the hud objects in fixed positions instead of loading it from the Tiled map. I did this because sometimes the Phaser world scaling could mess with the hud objects positions when reloading the screen or updating the lives. I also save the lives prefab initial position for the same reason.
+
+Second, we have to save the player lives and score before loading a new level, otherwise it will be restarted. For this, we will save this information in the browser localStorage when reaching the goal. Also, in the Player constructor, we first check if there's already a previous score or lives saved in the localStorage and if so, load it. Finally, in TiledState "game_over" method we clear the localStorage.
+
+We can add the Lives prefab to our current levels and see how it's working already:
+
+Items
+
+We will create two different items:
+ 1) A LifeItem, that will increase the player number of lives.
+ 2) A ShootingItem, that will give the player the ability to attack.
+
+First, we will create a generic Item prefab to reunite the common code between both items. All items will have an immovable physics body initialized in the constructor. Also, in the update method it will check for overlap with the player and call a "collect_item" method if that happens. By default, the "collect_item" method will only kill the Item, but we will overwrite it in our new items prefabs to do what we want.
+
+Now, our LifeItem will be really simple. We only need to overwrite the "collect_item" method to increase the player number of lives after calling the original "collect_item" method, as below:
+
+We can already see our game working with the LifeItem:
+
+The ShootingItem is also simple, we only need to set a shooting variable in the Player prefab to true. However, now we have to add the shooting logic in the Player prefab.
+
+Now, to give the player the ability to shoot fireballs, we will first create a Fireball prefab. The Fireball prefab will create a physical body with a constant velocity given by its direction. Also, we will check for collisions, and when they happen, kill it.
+
+With the Fireball prefab created, we have to add the ability to shoot them in the Player prefab. For this, we start checking in the update method if the player is able to shoot and if the shooting key was pressed (SPACEBAR). If so, we start a timer (created in the constructor) which will call the shoot method in a loop.
+
+In the shoot method we will use a concept called pool of objects. To avoid create and deleting a lot of objects, which could negatively impact our game performance, we will keep a group of Fireballs (called a pool) and everytime we have to create another Fireball we check if there isn't one dead Fireball in the pool. If so, we just reset it in the new position. Otherwise, we create a new one. This is similar to what we have done in the Lives prefab, and it is expected that as the game continues, we will have created all the necessary fireballs, and will start to reuse old Fireballs instead of creating new ones.
+
+Now, we can see our game working with fireballs:
+
+Boss level
+
+For the boss level I added a new enemy and the boss, which are both invincible, so if the player touches them, he will always die. This can be done by adding a new group (called "invincible_enemies") and, if the player overlaps with it, he automatically dies.
+
+Stone enemy
+
+The stone enemy will be stopped in the ceiling until the player goes below it. When that happens, the enemy will fall over the player. To do that, in the update method we will check if the player is below the enemy, and if so, the enemy start falling.
+
+To check for the player, we just have to compare the player x position to the enemy left and right coordinates, and the player y position must be below the enemy. To make the enemy falls, we just have to change its allowGravity property to true, as follows:
+
+Boss
+
+Our boss will have a simple behavior, it will keep walking forward and backward and shooting fireballs. If the player touches the boss, he will always die. For the boss behavior we will repeat a lot of things we used in other prefabs, so feel free can change the code to avoid code repetition, but I will keep it repeated here to simplify the tutorial.
+
+To make the Boss movement, we will do it like the Enemy movement, the only difference is that we won't change the boss sprite scale, this way it will always be looking in the same direction. To recall, we will save the Boss initial position before start moving and, when it has moved a maximum distance amount we invert its velocity and update the initial position.
+
+The Boss attacks will be done like the player fireballs, except we will change the group to be "enemy_fireballs" and we don't have to check for the boss direction, since it's always the same. Notice that we use the same Fireball prefab and, since we're changing the group, it won't collide with other enemies, and we don't have to create a new prefab for the them.
+
+Finally, we can see our Boss in the game, and the boss level is complete:
+
+Finishing the game
+
+Now, you can add the new content to the other levels as you wish, and finish your game. We added a lot of content to our game and I would like to know your opinion of the final result, and what kind of game you would like to see in the next tutorials.
+
+

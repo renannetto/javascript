@@ -1,0 +1,96 @@
+http://opengameart.org/content/48x48-faces-1st-sheet
+
+In this tutorial series, we will create a game similar to the popular Pokemon GO. First, we will create a Phaser state to catch Pokemon. Then, we will add a world state where the player can navigate in order to find Pokemon. We are also going to add features of the Pokemon GO game such as: different Pokemon, different pokeballs, pokestops to get pokeballs. In the end we are going to save the player pokedex in an online database.
+
+In this first tutorial I will cover the following content:
+ - Creating a catch state where the player can catch Pokemon
+ - Using Phaser P2 physics engine for throwing pokeballs and catching Pokemon
+ - Creating message boxes that interact with the player to call methods from the game state
+ - Creating a world state, which reads a Tiled map with the current Pokemon
+To read this tutorial, it is important that you are familiar with the following concepts:
+ - Javascript and object-oriented concepts.
+ - Basic Phaser concepts, such as: states, sprites, groups and arcade physics
+ - Creating maps using Tiled
+
+Level file and game states
+
+In this tutorial we are going to use JSON files like the one below in order to load assets, create groups and prefabs in our game.
+
+The Phaser states we are going to use are:
+ - BootState: responsible for loading the level file
+ - LoadingState: responsible for loading all level assets
+ - CatchState: represents the screen where the player can catch a Pokemon
+ - WorldState: represents the world where the player can navigate in order to find Pokemon. In this first tutorial WorldState will simply show the current Pokemon to catch.
+
+BootState and LoadingState are the simpler ones, and their codes are shown below. As mentioned earlier, BootState simply loads a level file, and send its content as a parameter to LoadingState.
+
+LoadingState, by its turn, iterates through all assets in the level data loading the correct asset for each one. Notice that we use a property called type in order to identify the correct asset to load, and an asset key to save it.
+
+CatchState code is shown below. First, in the "init" method we need to start the Physics engine. Notice that in this tutorial series we are going to use P2 Physics in order to have rounded collision shapes.
+
+The "create" method from CatchState is responsible for creating groups, collision groups (for the physics engine) and the prefabs. Groups and collision groups can be easily created by iterating through their respective arrays and creating them on Phaser or P2. In order to create the prefabs we are going to iterate through all prefabs described in the JSON file and call a "create_prefab" method.
+
+The "create_prefab" method starts by calculating the prefab position. This can be an absolute or percentage position. If the position is defined as number between zero and one (e.g: 0.5), its position will be calculated as a percentage of the world dimensions. Otherwise it will simply be the position defined in the JSON file. After defining the prefab position, we create it by calling the appropriate constructor with any custom properties declared in the JSON level file. Notice that we do that by saving the prefab constructors in a "prefab_classes" property, indexed by the prefab type. This is possible because all prefabs have the same constructor, defined in a generic Prefab class (shown below) which all Prefabs must extend.
+
+Now let's create our last state for this tutorial: WorldState. This state loads a Tiled map like the one shown below. Since the focus of this tutorial is not on Tiled, you're free to use the same map provided in the source code, or create your own map. The only things you must be careful is that the objects in the map must have at least their group and texture defined in their properties.
+
+Besides the Tiled map, WorldState will also going to use a JSON level file to load the assets, the map and create the groups, like the one shown below:
+
+This is the code for WorldState. Similarly to CatchState it starts P2 physics engine in the "init" method. However, it also has to create the tilemap, using the data provided by the JSON level file. Then, in the "create" method it creates the map layers, game groups and prefabs. The map layers and groups are created similarly to what we've done in CatchState, but in order to create prefabs we have to iterate through the object layers in the Tiled map and call a "create_object" method for each object.
+
+The "create_object" method starts by calculating the prefab position because we want the anchor point of the sprites to be their centers, while Tiled use it as the bottom left corner of the object. Then, we instantiate the correct prefab using the "prefab_classes" property exactly the same way we did in CatchState.
+
+By now, you can try starting both CatchState and WorldState to see if they are correctly creating the Prefabs. In order to do that you have to add all prefabs in the "prefab_classes" property, even if they're not doing anything yet. You should see the following screens:
+
+PokemonSpawn prefab
+
+We are going to start by creating the PokemonSpawn prefab, which will show a Pokemon in the world, and allow the player to catch it. This prefab will be used in WorldState, so be sure to change your code to start with WorldState in order to test it.
+
+The code for PokemonSpawn is shown below. In the constructor we need to appropriately set the anchor point and scale. Then, we enable input for it, as well as add an onInputDown event. This event will call the "try_catching" method, which will simply start CatchState.
+
+By now, you can try clicking on the Pokemon in WorldState and check if it properly starts CatchState.
+
+Pokemon and Pokeball prefabs
+
+Now we are going to create the prefabs for the Pokemon and the Pokeball, since those two prefabs will work together in order to allow the player to catch Pokemon.
+
+First, let's create the Pokemon constructor as below. The constructor will simply save the Pokemon fleeing rate from is properties (defined in the JSON file), and will start its physical body. For the physical body we need to define it as static, since we don't want it to move, define its collision body as a circle, set its collision group and tell the engine which groups collides with it (the pokeballs group, in our case).
+
+Now that we have our collidable Pokemon, let's go to the Pokeball prefab. In the constructor (shown below) we need to save some properties that will be used later and create input events. We will use two input events: 
+1) when the player clicks on the pokeball it will start dragging it
+2) when the player releases the pokeball it should throw it
+
+So, let's implement the methods for those two input events. First, the "drag" method will simply set the "dragging" property to true. Then, we need to change the "update" method to change the pokeball position to be the same as the active pointer if it is being dragged.
+
+The "throw" method, by its turn, will start by setting the "dragging" property to false. Then, it calculates the distance that the pokeball was dragged, from its distance to the initial position. If it was dragged above a pre-defined threshold, then we should throw the pokeball by initializing its physical body and changing its velocity on both x and y directions.
+
+Now let's implement the "init_body" method. The pokeball physical body will be similar to the Pokemon one, except that it won't be static and we are going to add a callback ("start_catching") to when it collides with a Pokemon.
+
+The "start_catching" method starts by destroying the physical body, since we don't need it anymore and will make the Pokemon invisible. Then, it will play a rotate tween animation to simulate the catching process. When the tween animation is done it will call a "try_catching" method, which will check if the Pokemon was succesfully caught.
+
+The "try_catching" method will generate a random number between 0 and 1 and compare it with the pokeball catching rate. If the generated number is lower than the catching rate the Pokemon was succesfully caught, and we need to kill the pokeball. Otherwise, we still need to check if the Pokemon will flee. If so, we also need to kill the pokeball and return to WorldState, so that the player can not throw it anymore. Otherwise, we just make the pokemon visible again and reset the pokeball to its initial position.
+
+Now we need to implement the "catch" and "fled" methods in the Pokemon prefab.
+
+The first method will simply kill the Pokemon and print a message in the console and go back to WorldState. The second method will start by generating a random number between 0 and 1. If this number is lower than the Pokemon fleeing rate, then it successfuly fled. Then, we will simply print a message in the console if the Pokemon has fled and will return is result in the end of the method.
+
+Finally, we only need to implement the "return_to_world" method in CatchState. This method will simply start WorldState with the world JSON file.
+
+By now you can already try catching a Pokemon. Try changing the catch and fleeing rates in order to test different outcomes.
+
+MessageBox prefab
+
+In the end of this tutorial we are going to show message boxes when a Pokemon is caught or when it flees. Those message boxes will have input events to call methods from the game state.
+
+Let's start by creating the MessageBox prefab. This prefab will simply create a TextPrefab to show its message and add an input event. The input event will call a method from the game state defined in the "callback" property from the properties parameter.
+
+Now let's change the Pokemon prefab to show the message boxes when the Pokemon is caught or when it flees.
+
+First, we are going to add a "MESSAGE_PROPERTIES" property in the Pokemon prefab constructor, which will be used to create the message boxes. Notice that the callback for the message boxes will be the "return_to_world" method in game state. Then, we can change the "catch" method to, instead of printing a message in the console, it will show a message box. Next we are going to change the "fled" method to also create a message box instead of printing a message in the console.
+
+Finally, we need to remove the calls to "return_to_world" that we added in the Pokemon and Pokeball prefabs.
+
+By now you can try catching a Pokemon again to see if the message boxes are being correctly displayed, as well as if the callback is being properly called.
+
+And we finished the first part of this tutorial series. In the next tutorial we are going to allow the player to navigate the world in order to find Pokemon, which will be randomly spawned. We are also going to add different Pokemon, and a Pokedex menu where the player can see which Pokemon were already caught.
+

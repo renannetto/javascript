@@ -1,0 +1,79 @@
+{
+    "assets": {
+        "hero_spritesheet": { "type": "spritesheet", "source": "assets/images/player.png", "frame_width": 31, "frame_height": 30 },
+        "weapon_image": { "type": "image", "source": "assets/images/attack-icon.png" },        
+        "coin_image": { "type": "image", "source": "assets/images/coin.png" },        
+        "potion_image": { "type": "image", "source": "assets/images/potion.png" },
+        "shield_image": { "type": "image", "source": "assets/images/shield.png" },
+        "chest_image": { "type": "image", "source": "assets/images/chest.png" },
+        "healthbar_image": { "type": "image", "source": "assets/images/healthbar.png" },
+        
+        "level_tileset": { "type": "image", "source": "assets/images/terrains.png" },
+        "level_tilemap": { "type": "tilemap", "source": "assets/maps/world.json" }
+    },
+    "groups": [
+        "items",        
+        "heroes",
+        "hud",
+        "stats"
+    ],
+    "map": {
+        "key": "level_tilemap",
+        "tilesets": ["level_tileset"]
+    },
+    "hud": {
+        "margins": {"left": 20, "right": 50, "top": 20, "bottom": 30},
+        "elements": {
+            "health": {
+                "type": "show_stat_with_bar",
+                "region": "top_left",
+                "properties": {
+                    "texture": "healthbar_image",
+                    "group": "hud",
+                    "stat_to_show": "hero.health"
+                }
+            },
+            "attack": {
+                "type": "show_stat_with_sprite",
+                "region": "center_bottom",
+                "properties": {
+                    "texture": "weapon_image",
+                    "group": "hud",
+                    "scale": {"x": 2, "y": 2},
+                    "anchor": {"x": 0.5, "y": 0.5},
+                    "stat_to_show": "hero.attack",
+                    "stats_spacing": {"x": 30, "y": 0},
+                    "stats_group": "stats"
+                }
+            },
+            "defense": {
+                "type": "show_stat_with_sprite",
+                "region": "center_bottom",
+                "properties": {
+                    "texture": "shield_image",
+                    "group": "hud",
+                    "scale": {"x": 2, "y": 2},
+                    "anchor": {"x": 0.5, "y": 0.5},
+                    "stat_to_show": "hero.defense",
+                    "stats_spacing": {"x": 30, "y": 0},
+                    "stats_group": "stats"
+                }
+            },
+            "money": {
+                "type": "show_stat_with_text",
+                "region": "top_right",
+                "properties": {
+                    "texture": "coin_image",
+                    "group": "hud",
+                    "scale": {"x": 2, "y": 2},
+                    "stat_to_show": "hero.money",
+                    "stats_group": "stats",
+                    "text_style": {
+                        "font": "32px Arial",
+                        "fill": "#FFFFFF"
+                    }
+                }
+            }
+        }
+    }
+}

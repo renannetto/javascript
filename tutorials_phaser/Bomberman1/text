@@ -1,0 +1,92 @@
+In this tutorial we will start building a Bomberman game. We will add the basic structure in this tutorial and keep adding content in the following tutorials. In this tutorial, I will cover the following content:
+ - Reading a Tiled map
+ - Creating a player that moves in four directions and drop bombs
+ - Creating a bomb that explodes when its animation ends
+ - Creating epxlosions when a bomb explodes that kills the player and enemies
+ - Creating an enemy that walks in one axis (horizontal or vertical)
+To read this tutorial, it is important that you are familiar with the following concepts:
+ - Javascript and object-oriented concepts.
+ - Basic Phaser concepts, such as: states, sprites, groups and arcade physics
+ - Creating maps using Tiled map editor
+
+Assets copyright
+
+The assets used in this tutorial were created by Cem Kalyoncu/cemkalyoncu and Matt Hackett/richtaur and made available by "usr_share" through the creative commons license, wich allows commercial use under attribution. You can download them in http://opengameart.org/content/bomb-party-the-complete-set or by downloading the source code.
+
+JSON level file
+
+Although our map is created by Tiled, we will still use a JSON level file to describe the assets we need (including the map file), the groups of our game and the map properties. The JSON level file we are going to use is shown below. Notice that we describe each asset according to its type, the group names and the map key and tilesets.
+
+Creating the map
+
+In this tutorial I will focus on building the game by using a Tiled map, and not in creating the map. So, feel free to create your own map or to use the one provided in the source code. Some details are important because of the way we're going to read this map:
+ - For each collidable layer, you have to add a collision property that is equals true
+ - For each object you have to properly define it's type (it will be used to instantiate the correct prefab) and add at least properties with its texture and group
+ - The map must be saved in JSON format
+
+The image below shows the map I'm going to use:
+
+Game states
+
+We will use the following states to run our game:
+ - Boot State: loads a json file with the level information and starts the Loading State
+ - Loading Sate: loads all the game assets, and starts the next State
+ - Tiled State: loads a tiled map file
+
+The BootState code is shown below. It is only responsible for loading the JSON level file and call the LoadingState.
+
+The LoadingState is responsible for loading all the assets that will be used in this level, as shown below. As it can be seen, the "preload" method iterate through all assets defined in the JSON level file and load it calling the corresponding method. After all assets are loaded, it calls the next state, which will be TiledState.
+
+Reading the Tiled map
+
+We will read the Tiled map in the TiledState, which the source code is shown below. First, in the init method we add the tilemap by using the asset described in the JSON file. Then, for each tileset image described in the JSON file, it adds it to the map. In our game, we will use only one tileset image.
+
+In the create methods, we create the layers, groups and prefabs. First, we iterate through all layers in the map object, creating and saving it. If a layer has a collision property we set it as collidable, by looking for all valid tile indices on it. To create the groups, we just iterate through all groups in the JSON file, creating them. 
+
+To create the prefabs, first we will define a generic Prefab class, as shown below. It extends Phaser.Sprite and is responsible for adding itself to its group. So, it is important that the properties parameter contain the texture and group information. 
+
+Finally, to create the prefabs we iterate through the objects in the objects layer. There are three important things to notice in the "create_object": 1) Tiled coordinate system starts in the bottom left corner, while in Phaser it starts in the top left corner. As a consequence, we have to change the y coordinate accordingly. 2) We instantiate the correct prefab by accessing a "prefab_classes" map with the object type property. This is possible only because all prefabs have the same constructor. 3) Since our generic Prefab class requires a texture and gorup properties, those properties must be defined in the Tiled map objects.
+
+Creating the player
+
+Our player prefab can walk in the four directions and drop bombs. First, in the constructor we have to set its properties, such as walking speed and bomb duration, and create the animations for walking in each direction.
+
+In the update method, we check for the cursors for movement and the spacebar for dropping bomb. For each direction, we check if its corresponding cursor key was pressed and if the player is not already moving in the opposite direction. If that's the case, we set its velocity accordingly. If the player was not moving, we start playing its corresponding walking animation. Also, since we're using the same animation for both left and right directions, we have to set the prefab scale properly. At the end of the update method, if the player velocity is 0 in both axis we stop the current animation and set the stopped frame according to the facing property of its physical body (the facing property is automatically updated by the physics engine. For more information, you can check the documentation).
+
+To drop bombs, we check for the spacebar key, and if it is pressed we call the "drop_bomb" method. In the "drop_bomb" method we will use a pool of objects to avoid creating unnecessary objects. The idea is to keep a group with all the game bombs and, when we need a new one, we get the first dead object from this group. If there is not a dead object, we create a new one. If there is one, we just reuse it, avoiding to keep creating new objects unnecessarily. Also, since this is a method we will use in different places, I put it in a Utils file, receiving as a parameter the pool, the prefab constructor and its constructor parameters.
+
+To keep the player from dropping multiple bombs at the same time, when one bomb is dropped, we set a "dropping_bomb" variable to true, and don't allow other bomb to be dropped. We only set this variable to false again when the spacebar key is released.
+
+You can already create a map with your player and see if it's walking correctly.
+
+Creating the bomb
+
+The Bomb prefab will start with an exploding animation and when the animation is done it will explode. For this, we set a bomb radius property in the constructor and create its animation, making it call the kill method when the animation is complete.
+
+To create the explosions, we have to overwrite the kill method. In the new kill method we start creating an explosion in the bomb position, and then we call the "create_explosions" method to create them in each of the four directions. This method's parameters are an initial index, final index, step and axis. By iterating through those indices, we create new explosions in a position given by the current index and the axis. If a wall tile is found during this process, we stop it. To do this, we use the "getTileFromXY" from Phaser.Tilemap, which returns a tile given a position in the world. Notice that, to allow negative indices we must compare the absolute values of "index" and "final_index". Also, we're using a pool of objects for the explosion, since we will be creating a lot of them.
+
+There is one last thing we have to do in the Bomb prefab. In the reset method we have to restart the exploding animation, otherwise it would not play when we reused a bomb object from the bombs pool.
+
+You can already try placing bombs to see if its working. Since we still didn't create the Explosion prefab yet, you can just comment this part of the code or create a dummy prefab for now.
+
+Creating explosions
+
+The Explosion prefab will have a duration, which will define how long it will last until it disappears. This property is setted in the constructor, and it is used when creating a timer which calls the kill method when completed. So, when the number of seconds defined by the duration property elapses, the Explosion prefab is killed.
+
+Notice that we have to set the "autoDestroy" property of "kill_timer" (in "this.game_state.time.create") to false, so it won't be destroyed when the last event finishes. Then, in the "reset" method we add another kill event, so it will keep working when an explosion is reused from the pool.
+
+Now you can try playing again to see if the explosions are being created and killed properly.
+
+Creating the enemy
+
+Our enemy will keep walking in a single axis (horizontal or vertical) and will switch direction when it reaches a maximum walked distance or it collides with something, like a wall or a bomb. To do this, we start by setting its walking speed, walking distance, direction and axis in the constructor. We also creates the enemy animations and start its velocity in the initial direction.
+
+In the update method we manage the animations according to its velocity in each direction, in a similar way we did with the player. However, since it will always walk in a single direction at once, we don't have to check if it isn't already walking in another direction.
+
+After starting or stopping animations, we check if it has reached its maximum distance, by subtracting the current position by the position in the beginning of the movement. If this value is greater or equal than the maximum distance to walk, we have to switch its direction. The "switch_direction" method only reverts the velocity and saves the new initial position.
+
+You can already try playing with the enemy prefab, to see if it's working. Don't forget to properly add the collisions in the prefabs update method.
+
+Finishing the game
+
+And now our game is complete! In the next tutorials we will add some content to it.

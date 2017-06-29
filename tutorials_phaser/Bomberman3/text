@@ -1,0 +1,67 @@
+In the last tutorial, we added content to our Bomberman game, such as lives, items and more levels. In this tutorial, we will make it multiplayer, by adding a second player. We will also add a battle game mode, where the two players must compete agains each other. The following topics will be covered:
+ - Creating a Phaser plugin to receive user input
+ - Making the game multiplayer
+ - Creating a new game mode
+ - Creating a title screen with the two game mode options
+To read this tutorial, it is important that you are familiar with the following concepts:
+ - Javascript and object-oriented concepts.
+ - Basic Phaser concepts, such as: states, sprites, groups and arcade physics
+ - Creating maps using Tiled map editor
+
+Assets copyright
+
+The assets used in this tutorial were created by Cem Kalyoncu/cemkalyoncu and Matt Hackett/richtaur and made available by "usr_share" through the creative commons license, wich allows commercial use under attribution. You can download them in http://opengameart.org/content/bomb-party-the-complete-set or by downloading the source code.
+
+Creating a Phaser plugin to receive user input
+
+In Phaser, you can create plugins to add functionalities to your engine (you can check the documentation for more information). In this tutorial, we will create a Phaser plugin that will read a JSON file containing all the user input data. This JSON file must have the key for each action, and what action should be executed for each key.
+
+The JSON file below shows the user input data I used for this tutorial. You can create your own by changing the key for each action as you prefer. In this file we define a list of inputs for each possible key event (keyDown, keyUp, keyPressed). For each user input we define the key, the callback function and the arguments. For example, in the keyDown events, the key "UP" will call "player.move" with the arguments "[0, -1]" and "true" (we will define this callback function later).
+
+Now, we have to write our plugin code. We start by creating a class that extends Phaser.Plugin. The Phaser.Plugin class has a method "init" which we must use as our constructor. This method will receive the user input data as parameter, and will create an object mapping, for each event type, each key to its callback function. The callback function must define the prefab and its method that will be called. Then, we add an event for each possible key event, calling the method "".
+
+The method "" identifies the event type and key and gets the callback information. From the callback, it uses Javascript split function to identify the prefab and the method and call it passing the arguments defined in the user input file.
+
+Now, we have to define the "move" method in the Player prefab. This method will receive the direction and if the player should start or stop moving. By doing so, we can use the same method to move or stop the player in each direction, as you can see in the user input file. The player prefab sets an object move according to the given direction. Then, in the Player prefab update method, instead of checking for pressed keys, we only check if the move object is true for each direction. The code below shows the Player prefab with the necessary modifications.
+
+Finally, we have to add our plugin in the game state. First, we have to change the JSON level file to tell the LoadingState which file contains the user input, as shown below.
+
+Now, we have to change the LoadingState to load the user input file and add the plugin in the "create" method of TiledState. The code below show the modifications in both classes.
+
+You can already try playing your game with the user input file. Nothing should change in the gameplay, the only difference is in the code.
+
+Adding a new player
+
+Now that we're handling all the user input with our plugin, it becomes easier to add another player. We just have to add another Player prefab in our game and add its correspondent user input in the user input file. The new user input file is shown below. Notice that the prefab "player" becomes "player1" and we add the user input for "player2" as well. 
+
+We also need to update the maps to add the new player. Those are the maps I created. You can use them, which are available in the source code, or create your own.
+
+There are some other things we must change so our game still works. First, we must change our Lives prefab so it knows which player lives it should show. We do this by adding a property with the player prefab name, so in the "update" method it can get the correct Player prefab and update the number of lives correctly. We also change the "init_hud" method in TiledState to show the number of lives of each player. The codes below show the modifications in the Lives prefab and TiledState.
+
+Also, when a bomb explodes, it decreases the current bomb index of its owner. Since now we have two possible owners, the bomb must know which one it should decrease the current bomb index. We can easilty do that by adding a property with the bomb owner, as the code below shows. Then, when a player creates a bomb, it passes its object as a parameter to the bomb. This modification in the Player prefab is also shown below.
+
+Now, you can already try playing with two players, and see if it is working.
+
+Adding the battle mode
+
+We will add a battle mode where each player should explode the other to win. To do that, we must create a new game state, called BattleState. However, this state will be very similar to the TiledState we already have. So, we will change the TiledState to have only the common code between the BattleState and our current game mode. Then, we will create the new states, called ClassicState and BattleState, which will extend TiledState, only adding the differences.
+
+The code for TiledState, ClassicState and BattleState is shown below. Notice that the only differences are the "game_over" method, which will show the winner in the BattleState, and the "next_level" method, which exists only for the ClassicState. Remember that we must change all references to "TiledState" in our code to be either ClassicState or BattleState.
+
+Before finishing, we will add a game over message, which will be different for each game mode. In the classic mode, it will only show the Game Over message, while in the battle mode it will also show the winner player. To do that, we will create a GameOverPanel prefab, as shown below. This prefab will have a bitmap texture, and will start with an animation to appear on the screen. Once the animation finishes, it shows the game over message. We create the GameOverPanel in the TiledState, as shown below.
+
+Finally, to show a different message in the BattleState, we create a BatleGameOverPanel, which extends GameOverPanel but includes the message showing the winner. To allow this, we also change the "create_game_over_panel" method from BattleState to create this prefab accordingly.
+
+You can already try playing the battle mode to see if it is working as expected. Try winning with each player to check if the game over message is correct.
+
+Adding a title screen with the menu
+
+To create our menu, we will create a Menu and a MenuItem prefabs. The Menu prefab will have a list of menu items, and allows navigating through them using the arrow keys. When the user press the UP or DOWN arrow key, it changes the current menu item. When the SPACEBAR is pressed, it selects the current item. The MenuItem prefab will play an animation when it is the current item and has a "select" method to start the game. In this method it will call the BootState to start the game with the ClassicState or the BattleState. In our title screen we will have two menu items, one for each game mode. The code for both prefabs is shown below.
+
+To show the title screen, we will create a TitleState. In this state, we only have to change the "create" method to create the menu. To simplify the code, I put the menu items data in a JSON file, shown below. The TitleState starts by showing the game title and then reads the menu items data from this file, storing all menu items in an array. This array of menu items is then used to create the menu. The code for TitleState is shown below.
+
+Now you can change main.js to start with TitleState and see if everything is working. Try playing both game modes to check if the menu is working correctly.
+
+Finishing the game 
+
+And now we finished our Bomberman game! Tell me your opinion in the comments section, so I can now what you would like to see next.

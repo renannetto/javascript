@@ -1,0 +1,92 @@
+In the last tutorial we created the basic Phaser states for our game. Now, we are going to add the Trainer in the WorldState, and change our game to regularly spawn Pokemon. The following topics will be covered in this tutorial:
+
+In this first tutorial I will cover the following content:
+ - Creating a Trainer prefab to walk around the World
+ - Creating a prefab to regularly spawn Pokemon in the World
+ - Adding different species of Pokemon with different probabilities
+ - Saving the Pokemon caught by the trainer, which are shown in its Pokedex
+To read this tutorial, it is important that you are familiar with the following concepts:
+ - Javascript and object-oriented concepts.
+ - Basic Phaser concepts, such as: states, sprites, groups and arcade physics
+ - Creating maps using Tiled
+
+Trainer prefab
+
+Let's start by creating the Trainer prefab. In the original Pokemon GO game the Trainer walks according to your GPS position. However, in this series we are only going to make it walk towards a desired position obtained when the player clicks (or touches) the screen.
+
+In order to do that, in the constructor we need to save its walking speed, define its animations, initialize its physical body and the input event to move the Trainer.
+
+The "move_to" method will simply set a new target position for the Trainer.
+
+Now the update method is the one responsible for moving the Trainer. This method starts by checking if the Trainer has to move on the y coordinate, by comparing its current y coordinate to the y coordinate of the target position. If so, we set its velocity in the y direction. Next, we do the same for the x coordinate. If no movement is necessary, we set the velocity for 0.
+
+Finally, we play the correct animation accordingly to the Trainer velocity. If the velocity is 0 in both directions, we stop the current animation and set the current frame to the appropriate stopped frame, using the facing property of the physical body.
+
+By now, you can already try adding the Trainer to the Tiled map of WorldState. You only need to remember to add the Trainer prefab to the "prefab_classes" property in WorldState.
+
+PokemonSpawner prefab
+
+The next step is to spawn Pokemon around the world map.
+
+First, we will change the PokemonSpawn prefab. Until now, this prefab only has an input event to start the CatchState. We are going to change it to make it visible only when the Trainer is close, and kill the spawn after some time.
+
+So, in the constructor we need to save the PokemonSpawn duration and detection radius. Then, we initially set it as invisible and start the kill event.
+
+The "add_kill_event" method start a timer with a random duration which will kill the spawn after some time. The random duration is obtained between the minimum and maximum values in the duration property.
+
+The "update" method, by its turn, will check if the Trainer is close to the PokemonSpawn, in order to show it. We do that by measuring the distance between those two prefabs. If this distance is less than the detection radius we make the spawn visible and enable its inputs, so that now the player can catch it.
+
+Now we are going to create a PokemonSpawner prefab, which will actually create PokemonSpawn on the map.
+
+In order to do that we need to save in the constructor the following properties: the default properties of spawns in order to create them, the minimum and maximum spawn times in order to create a spawn timer, and a spawn distance range. In the end we create a spawn timer and call a method to schedule its next event.
+
+The "schedule_spawn" method pick a random number between the minimum and maximum spawn times and add a new event with this duration. This event will call the "spawn" method, which will create a new PokemonSpawn.
+
+In order to create new spawn, we are going to use a method defined in a different file (Utils.js) that creates a prefab from a pool. The idea is to get the first dead prefab from the pool and creating a new prefab only if there is no dead one to reuse. If there is already a dead prefab, we simply reset it to the desired position.
+
+So, in the "spawn" method, we simply need to define the pool, the prefab name, its position and properties, in order to call the "create_prefab_from_pool" method. Notice that the position is calculated by picking a random distance from the spawner using the "spawn_range" property. After spawning another pokemon, we call the "schedule_spawn" method again, to schedule the next event.
+
+By now you can already try adding a spawner to your Tiled map and see if it is correctly spawning Pokemon. Also, check if the spawns are working correctly, by showing up only when the Trainer is close to them.
+
+Adding different species of Pokemon
+
+Now that we are spawning Pokemon, we want to add different species of Pokemon with different spawn probabilities.
+
+We will describe all Pokemon in a separate JSON file like the one below (if you're curious, I pick the Pokemon name using the following generator: http://fantasynamegenerators.com/pokemon-names.php#.V-fjR-rd_VM):
+
+This file is read in the "preload" method from WorldState, and parsed in the end of the "create" method.
+
+Now let's change the PokemonSpawn and PokemonSpawner prefabs to support different species. 
+
+In the PokemonSpawn prefab we simply need to add a new property called "pokemon_properties", which will have the properties specific to that species (obtained from the JSON file. Then, the "try_catching" method will start CatchState with the "pokemon_properties" as an extra parameter.
+
+In the PokemonSpawner prefab we need to select the pokemon species before spawning it. So, the spawn timer now will call a "select_pokemon" method, which will pick a random number between 0 and 1. This number will be used to select the species to be spawned. We can do that by iterating through all species and choosing the first one whose probability is larger than the generated number (as long as the species probabilities are sorted in ascending order). After choosing the species, we call the "spawn" method. We also need to change the "spawn" method to set the "pokemon_properties" property accordingly to the species.
+
+Finally, we need to change our Phaser states to allow CatchState to receive the extra parameter. First, we change BootState and LoadingState to receive the extra parameter and simply send it to the next state. 
+
+Then, in CatchState we can save the pokemon properties from the extra parameter. Now, instead of creating the Pokemon in CatchState from the JSON file, we are going to manually create it in the end of the "create" method (and remove it from the JSON file). By doing so, we can create the Pokemon with the correct properties according to its species.
+
+By now you can try playing with different Pokemon species. Check if they are being spawned correctly, and if the Pokemon in CatchState are being properly created.
+
+Showing the Pokedex
+
+The last thing we are going to do in this tutorial is adding a Pokedex prefab to show the currently caught Pokemon.
+
+In order to show the caught Pokemon we will create a PokemonSprite prefab, which will simply show the Pokemon and its species. So, in the constructor we need to create a TextPrefab, which must be killed in the "kill" method.
+
+Now the Pokedex will have the default properties for PokemonSprite, which will be changed according to the Pokemon species. In the constructor we are also going to initialize the position for the first PokemonSprite and add an input event to hide the Pokedex when it is clicked.
+
+The "show" method will make the Pokedex visible, enable its input events (so that we can hide it), and show all caught Pokemon (saved in a "caught_pokemon" array in the game). We are going to create the PokemonSprites using the "create_prefab_from_pool" method, so we only need to define the prefab name, position and properties. Notice that we only need to change the texture and text in the default properties, while the position starts by the initial one and is updated after each iteration.
+
+The "hide" method, by its turn, will simply make the Pokedex invisible, disable its input events and kill all created PokemonSprites.
+
+There are two things left to do. First, we need to add all caught Pokemon to the "caught_pokemon" array. The second thing is adding a button to show the Pokedex.
+
+In order to add caught Pokemon to the "caught_pokemon" array we need to change the Pokemon prefab. Once a Pokemon is caught we check if it is the first time this species was caught. If so, we add it to the array. The "already_caught" method simply checks if there is already a Pokemon with the same species in the array.
+
+Finally, to create the Pokedex button we are going to create a Button prefab which will simply extend Phaser.Button calling a method from "game_state" (defined in the "callback" property) when clicked. Then, we can add a Button prefab in the Tiled map to call the "show_pokedex" method in WorldState. This method will simply call the "show" method from the pokedex.
+
+Now you can try catching some Pokemon and check if your Pokedex is being updated. Try catching the same species more than once and see if the Pokedex is only showing each species once.
+
+And that concludes this tutorial. In the next one we are going to add Pokestops to get Pokeballs, as well as different types of Pokeballs with different catching rates.
+

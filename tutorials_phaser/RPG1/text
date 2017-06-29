@@ -1,0 +1,71 @@
+In this tutorial series, we will create a turn-based RPG game, such as the Final Fantasy series. First, we will create the battle state for our game. Then we will create a state for the world, which will change to the battle state every time an enemy is found. Finally, we will add content, such as items, levels, NPCs and save points. In this first tutorial I will cover the following content:
+ - Creating a battle state which will be called during the game
+ - Creating menus for the battle state HUD
+ - Creating a simple turn-based game, where each unit acts once
+To read this tutorial, it is important that you are familiar with the following concepts:
+ - Javascript and object-oriented concepts.
+ - Basic Phaser concepts, such as: states, sprites, groups and arcade physics
+
+Assets copyright
+
+The monsters assets used in this tutorial are available in http://opengameart.org/content/2d-rpg-enemy-set and were created by the following artists: Brett Steele (Safir-Kreuz), Joe Raucci (Sylon), Vicki Beinhart (Namakoro), Tyler Olsen (Roots). The characters assets are available in http://opengameart.org/content/24x32-characters-with-faces-big-pack and were created by Svetlana Kushnariova (email: lana-chan@yandex.ru). All assets are available through the Creative Commons license.
+
+Boot and loading states
+
+We will create boot and loading states to load all the game assets before it starts. All this content will be read from a JSON file, as shown below. Notice that in this file we have to define the state assets, groups and prefabs. 
+
+The BootState code is shown below. It will only load the JSON file and call the LoadingState. 
+
+The LoadingState is responsible for loading all the necessary assets. To do that, it will read the assets from the JSON file and load them accordingly. The code for LoadingState is shown below. Notice that the "preload" method loads the correct Phaser asset according to the asset type. At the end, it will call the next state (in our case, BattleState).
+
+Creating the battle state
+
+We will create a battle state that will show the player party, enemy units and a menu so the player can choose which enemy to attack. Initially, we will just create the basic structure, showing the units without the menus. Also, in this tutorial all the units will be read from the JSON file (shown above). In the next tutorials, we will pass this data as a parameter in the "init" method.
+
+The BattleState code is shown below. The "init" method only saves the level data and sets the game scale. The "create" method starts by creating all the groups and then create the prefabs (groups and prefabs are read from the JSON file).
+
+For each prefab, the "create_prefab" method  will instantiate the correct prefab according to its type. Two things are necessary for that to work:
+ 1) All prefabs must have the same constructor. To achieve that, we create a generic Prefab class (shown below) which all Prefabs must extend.
+ 2) We must have a property mapping each prefab type to its constructor. This property is defined in the BattleState constructor.
+
+Since all units are declared in the JSON file, by now they will already appear in our BattleState, as shown in the figure below. Try executing the game now, to see it. You can create empty classes for the units, just to make it work for now.
+
+Creating the battle state HUD
+
+Now, we are going to add three menus for our BattleState:
+ 1) Player units menu: will show the player units and their health
+ 2) Actions menu: will show the available actions of the player
+ 3) Enemy units menu: will show the enemy units so the player can choose which one to attack
+
+Before doing this, we will create a Menu and MenuItem prefabs, as shown below. The Menu prefab has an array of MenuItems and allows navigating through them when it is enabled. Since we will have more than one Menu at the same time, we need methods to enable and disable them when necessary. The enable method will add callbacks to the keyboard to allow menu navigation. The other methods from Menu will be used later on in this tutorial. 
+
+The MenuItem prefab only has to implement the "selection_over" and "selection_out" methods (called by Menu). When a MenuItem is over the selection, it will change its color. Notice that MenuItem extends TextPrefab instead of Prefab. This class is similar to the generic Prefab class, but extends Phaser.Text instead of Phaser.Sprite, as shown below. One important thing to notice is that all texts will have the same text style, defined as "TEXT_STYLE" in BattleState. However, we must use Object.create() to use a copy of it when creating each TextPrefab, otherwise all of them would have a reference for the same object.
+
+Also, notice that the MenuItem prefab does not implement the method "select", which is called by Menu. So, we have to create new prefabs that extend MenuItem and implement it. We do that by creating three new prefabs: AttackMenuItem, PlayerMenuItem and EnemyMenuItem. The first one will only disable the actions menu and enable the enemy units menu, so the player can choose the attack target. 
+
+The second one will not do anything when selected, since it will only be used to show the current player unit. However, we want to show the player unit health, so it will create a ShowState prefab (whose code is shown below), which will show the player unit health.
+
+Finally, the EnemyMenuItem will be used to select the enemy to be attacked. We can do that by getting the enemy prefab (the menu item text will be the prefab name) and making the current unit attacking unit. We will add the current unit and implement the attack method later.
+
+All the menus will be added in the "init_hud" method from BattleState, which will be called at the end of the "create" method. First, the "show_player_actions" method creates the actions menu, which in this tutorial will have only the Attack action. In the next tutorials we will add more actions, such as Magic and Item. Then, the "show_units" method is used to create the player and enemy units. Notice that this method receive as parameter the units group name and menu item constructor, so it can be used to create different kinds of units menu.
+
+By now you can already run your game to see if the menu is being correctly displayed. You can also try enabling some menus to see if you can correctly navigate through them. The only thing still not working will be the menu selection.
+
+Implementing the turns
+
+In our game we will create an array with all the units and in each turn the first unit in the array will act. First, we create the "units" array in the "create" method, then we call the "next_turn" method.
+
+The "next_turn" method takes the first unit in the array and, if the unit is alive, it acts and is pushed to the end of the units array. Otherwise, it calls the next turn. The code below shows the modifications to BattleState.
+
+Now, we have to implement the "act" method in both EnemyUnit and PlayerUnit. The EnemyUnit "act" method chooses a random player unit as the target and attack it. On the other hand, the "act" method for PlayerUnit highlights the current player unit and enables the enemy units menu, so the player can choose the enemy to attack.
+
+The "attack" method is the same for both units, so it will be implemented in the Unit prefab. It calculates the damage based on the unit attack and the target defense, and deals that damage to the target unit. Notice that the damage is randomized by multiplying the attack and defense by random multipliers between 0.8 and 1.2. All random generation is done using Phaser RandomDataGenerator (you can check the documentation for more information). After dealing the damage, an attack message is displayed, so the player can have some visual feedback. The ActionMessage prefab (shown below), simply shows a text inside a rectangle, which is killed after some time. One important detail is that the next turn is called when this ActionMessage is killed.
+
+The "receive_damage" method is also the same for both units, and it reduces the unit health and check if it is dead. In addition, it starts an attacked animation, which changes the prefab tint to red and then goes back to the normal.
+
+Finally, we have to change the "kill" method of both EnemyUnit and PlayerUnit to update their menus accordingly. First, when an enemy unit dies, it must remove itself from the enemy units menu, which can be done using the methods we already have in the Menu prefab. On the other hand, the player unit will not remove itself from its menu, but only change the alpha of its menu item, making it darker.
+
+Finally, you can try playing the BattleState. Try changing the enemies and player stats to see if everything is working accordingly.
+
+And we finished the first part of this tutorial series. In the next tutorials we will add a world that the player can explore and find random enemies. We will also improve the battle state, adding more actions and a different turn-based approach based on the units speed.
+

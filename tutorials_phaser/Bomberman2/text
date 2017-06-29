@@ -1,0 +1,64 @@
+In the last tutorial we created the basic structure for a Bomberman game. In this tutorial we're going to add some more content to it and make it more fun to play, with a winning condition. In this tutorial we will add the following:
+ - Add targets that must be destroyed by the player to find the goal and advance levels
+ - Adding items, that may be found after exploding tiles
+ - Controlling the number of bombs the player can drop
+To read this tutorial, it is important that you are familiar with the following concepts:
+ - Javascript and object-oriented concepts.
+ - Basic Phaser concepts, such as: states, sprites, groups and arcade physics
+ - Creating maps using Tiled map editor
+
+Assets copyright
+
+The assets used in this tutorial were created by Cem Kalyoncu/cemkalyoncu and Matt Hackett/richtaur and made available by "usr_share" through the creative commons license, wich allows commercial use under attribution. You can download them in http://opengameart.org/content/bomb-party-the-complete-set or by downloading the source code.
+
+New levels
+
+In this tutorial we'll add new levels to our game. Since the focus of this tutorial is on creating the game, not using Tiled to create the maps, you're free to create your owns or use the ones provided with the source code. The figures below show the levels I'm going to use. Just remember to add the object and layer properties as explained in the last tutorial.
+
+Showing the player lives
+
+In this tutorial our player will have a starting number of lives, which will decrease every time it dies. When the number of lives reaches zero, it's game over. In addition we want to show the remaining number of lives in the screen. First, we will modify the Player prefab to keep tracking of its number of lives. To do that, we start by adding a new property in the constructor. Notice that, since we don't want to reset the number of lives in each level, we will keep in the localStorage when changing levels, and the player will get its value from there if available. When the first level is loaded, we clear the localStorage, so the player will reset its number of lives. The methods in TiledState that change the localStorage are "init" and "next_level", as shown below.
+
+We also have to add a "die" method, which will decrease the player number of lives and check if it's still greater than 0. If so, it just resets the player to the initial position. Otherwise, it's game over. The new Player prefab code is shown below.
+
+To show the player number of lives in the screen we will a Lives prefab. This will prefab will show a heart image with the number of lives inside of it. To do that, we create the text in the prefab constructor with all the necessary properties and in the update method we change it to show the current number of lives of the player. The Lives prefab code is shown below.
+
+You can already try playing with the lives to check if everything is working.
+
+Adding targets and the goal
+
+In our game, to advance to the next level the player must destroy some targets in the level. Once all targets have been destroyed, a goal will appear in the level. When the player touches the goal, he advances to the next level.
+
+To do that, we will create a Target prefab, which will have a physical body and is immovable. In the update method we check for overlap with explosions and, if so, we call the kill method. Finally, we overwrite the kill method to besides calling the Phaser.Sprite kill method, checking if this was the last living target. If so, we must create the goal. The code for the Target prefab is shown below:
+
+The Goal prefab is also simple, as you can see in the code below. It will have an immovable physical body too, but it will check for overlaps with the player. When the player touches the goal, it will call the "next_level" method from TiledState, which will advance the level. The "next_level" method is shown below. Notice that this method uses a "next_level" property from the JSON file, so we have to add it there accordingly.
+
+You can already try playing with the targets and the goal, advancing levels and checking if they're working properly.
+
+Limiting the number of bombs the player can drop
+
+In this tutorial, we will limit the number of bombs the player can drop simultaneously. To do that we will change the way we control the bomb dropping to work in the following way: we keep track of the total number of bombs the player can drop and the index of the current bomb. When the spacebar is pressed, we first check if it is possible to drop another bomb by comparing the index of the current bomb with the total number of bombs. If so, we drop the bomb only if it does not collide with an already dropped one. Finally, when a bomb is dropped, we have to update the index of the current bomb. The code below shows the Player prefab with the necessary modifications.
+
+In addition, we have to change the Bomb prefab to decrease the index of the current bomb when it explodes. This modification is shown in the code below.
+
+Try playing now and see if you can control the maximum number of dropped bombs. Try changing it and check if it works properly.
+
+Adding items
+
+When a tiled is destroyed by a bomb, eventually an item should appear to the player. To do that, first we will create a generic Item prefab, as shown below. This prefab will have an immovable physical body, which overlaps with explosions and the player. When it collides with an explosion, the item is destroyed, and when it collides with a player, it is collected. We also write a default "collect_item" method, which just kills it.
+
+Now, we are going to create other prefabs that will extend Item and will overwrite the "collect_item" method. We are going to create two items:
+ 1) Life item, which will increase the player number of lives
+ 2) Bomb item, which will increase the number of bombs the player can drop
+
+The LifeItem prefab code is shown below. Since we already have our generic Item prefab, we only have to overwrite the "collect_item" method, which increase the player number of lives.
+
+The BombItem prefab code is similar and shown below. In the "collect_item" method we only have to increase the player number of bombs, limited by a maximum number.
+
+Finally, we have to create the items when a tile is destroyed. First, we will add a property in our TiledState containing all the items probabilities and properties, as shown below. One important thing is that the items are ordered by their probabilities, with the lower probability item being the first one. Now, in the Bomb prefab, after we destroy a tile we have to check if a item must be created. To do that, we generate a random item using Phaser random data generator (for more information, you can check the documentation), and iterate through all the available items comparing the generated number with the item probability. If the generated number is lower than the probability of an item, we create it and stop the loop. Since the items are ordered by probability, the less likely ones will have priority. The Bomb prefab with this method is shown below. Notice that we use a pool of objects to create the items, and we can get the prefab properties from TiledState "items" property.
+
+Now you can try playing to see if the items are being created correctly, and if they're having the correct effect in the game.
+
+Finishing the game
+
+And now we finished this tutorial! We added some nice content making it more fun to play. In the next tutorial we will make it multiplayer, adding another player to it! Let me know your opinion of this tutorial and what you would like to see in future ones.

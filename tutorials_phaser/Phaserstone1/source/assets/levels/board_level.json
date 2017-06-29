@@ -1,0 +1,156 @@
+{
+    "assets": {
+        "board_image": {"type": "image", "source": "assets/images/board.png"},
+        "card_front_image": {"type": "image", "source": "assets/images/card_front.png"},
+        "card_back_image": {"type": "image", "source": "assets/images/card_back.png"},
+        "end_turn_image": {"type": "image", "source": "assets/images/end_turn.png"},
+        "mana_image": {"type": "image", "source": "assets/images/mana.png"},
+        "warrior_image": {"type": "image", "source": "assets/images/warrior.png"},
+        "mage_image": {"type": "image", "source": "assets/images/mage.png"}
+    },
+    "groups": [
+        "background",
+        "cards",
+        "minions",
+        "heroes",
+        "hud"
+    ],
+    "prefabs": {
+        "board": {
+            "type": "board",
+            "position": {"x": 0, "y": 200},
+            "properties": {
+                "group": "background",
+                "texture": "board_image"
+            }
+        },
+        "player1_mana": {
+            "type": "mana",
+            "position": {"x": 580, "y": 850},
+            "properties": {
+                "group": "hud",
+                "texture": "mana_image",
+                "total_mana": 1,
+                "current_mana": 1
+            }
+        },
+        "player2_mana": {
+            "type": "mana",
+            "position": {"x": 590, "y": 250},
+            "properties": {
+                "group": "hud",
+                "texture": "mana_image",
+                "total_mana": 1,
+                "current_mana": 1
+            }
+        },
+        "end_turn": {
+            "type": "end_turn",
+            "position": {"x": 900, "y": 580},
+            "properties": {
+                "group": "hud",
+                "texture": "end_turn_image",
+                "anchor": {"x": 0.5, "y": 0.5},
+                "callback": "end_turn"
+            }
+        },
+        "player1_hero": {
+            "type": "hero",
+            "position": {"x": 511, "y": 852},
+            "properties": {
+                "group": "heroes",
+                "texture": "mage_image",
+                "anchor": {"x": 0.5, "y": 0.5},
+                "owner": "player1",
+                "damage": 0,
+                "health": 5
+            }
+            
+        },
+        "player2_hero": {
+            "type": "hero",
+            "position": {"x": 511, "y": 270},
+            "properties": {
+                "group": "heroes",
+                "texture": "warrior_image",
+                "anchor": {"x": 0.5, "y": 0.5},
+                "owner": "player1",
+                "damage": 0,
+                "health": 5
+            }
+            
+        },
+        "opponent_card1": {
+            "type": "card_in_hand",
+            "position": {"x": 200, "y": 0},
+            "properties": {
+                "group": "cards",
+                "texture": "card_front_image",
+                "owner": "player2",
+                "cost": 1,
+                "damage": 1,
+                "health": 1
+            }
+        },
+        "opponent_card2": {
+            "type": "card_in_hand",
+            "position": {"x": 400, "y": 0},
+            "properties": {
+                "group": "cards",
+                "texture": "card_front_image",
+                "owner": "player2",
+                "cost": 1,
+                "damage": 1,
+                "health": 1
+            }
+        },
+        "opponent_card3": {
+            "type": "card_in_hand",
+            "position": {"x": 600, "y": 0},
+            "properties": {
+                "group": "cards",
+                "texture": "card_front_image",
+                "owner": "player2",
+                "cost": 1,
+                "damage": 1,
+                "health": 1
+            }
+        },
+        "player_card1": {
+            "type": "card_in_hand",
+            "position": {"x": 200, "y": 930},
+            "properties": {
+                "group": "cards",
+                "texture": "card_front_image",
+                "owner": "player1",
+                "cost": 1,
+                "damage": 1,
+                "health": 1
+            }
+        },
+        "player_card2": {
+            "type": "card_in_hand",
+            "position": {"x": 400, "y": 930},
+            "properties": {
+                "group": "cards",
+                "texture": "card_front_image",
+                "owner": "player1",
+                "cost": 1,
+                "damage": 1,
+                "health": 1
+            }
+        },
+        "player_card3": {
+            "type": "card_in_hand",
+            "position": {"x": 600, "y": 930},
+            "properties": {
+                "group": "cards",
+                "texture": "card_front_image",
+                "owner": "player1",
+                "cost": 2,
+                "damage": 2,
+                "health": 2
+            }
+        }
+    }
+}

@@ -1,0 +1,43 @@
+{
+    "assets": {
+        "google_login_button_image": {"type": "image", "source": "assets/images/google_login_button.png"},
+        "facebook_login_button_image": {"type": "image", "source": "assets/images/facebook_login_button.png"}
+    },
+    "groups": [
+        "hud"
+    ],
+    "prefabs": {
+        "title": {
+            "type": "text",
+            "position": {"x": 0.5, "y": 0.5},
+            "properties": {
+                "anchor": {"x": 0.5, "y": 0.5},
+                "group": "hud",
+                "text": "Phasermon GO",
+                "style": {"font": "32px Arial", "fill": "#FFF"}
+            }
+        },
+        "login_with_google_button": {
+            "type": "login_button",
+            "position": {"x": 0.5, "y": 0.7},
+            "properties": {
+                "anchor": {"x": 0.5, "y": 0.5},
+                "group": "hud",
+                "texture": "google_login_button_image",
+                "auth_provider": "google",
+                "provider_scope": "https://www.googleapis.com/auth/plus.login"
+            }
+        },
+        "login_with_facebook_button": {
+            "type": "login_button",
+            "position": {"x": 0.5, "y": 0.9},
+            "properties": {
+                "anchor": {"x": 0.5, "y": 0.5},
+                "group": "hud",
+                "texture": "facebook_login_button_image",
+                "auth_provider": "facebook",
+                "provider_scope": "user_birthday"
+            }
+        }
+    }
+}

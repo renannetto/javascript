@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="20" height="40" tilewidth="16" tileheight="16">
+ <tileset firstgid="1" name="map_tileset" tilewidth="16" tileheight="16">
+  <image source="../images/open_tileset.png" width="160" height="180"/>
+ </tileset>
+ <layer name="grass" width="20" height="40">
+  <data encoding="base64" compression="zlib">
+   eJztw0ENAAAMA6GzUf9G52IvSFg1VVXVhwcNZ04h
+  </data>
+ </layer>
+ <layer name="roads" width="20" height="40">
+  <data encoding="base64" compression="zlib">
+   eJxjYCAM1KikZtS8kW2eOhBbQbEGFcwjxU2j5o2aRw/zrIjABiSIU9t9I808bOFsRIF5xKgbNY808wwZiMsfpNQZ5Lhj1LxR80bNo695AGGEEtc=
+  </data>
+ </layer>
+ <objectgroup name="objects" width="20" height="40">
+  <object name="spawn1" type="pokemon_spawn" gid="71" x="192" y="176">
+   <properties>
+    <property name="group" value="spawns"/>
+    <property name="texture" value="pokemon_spritesheet"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>

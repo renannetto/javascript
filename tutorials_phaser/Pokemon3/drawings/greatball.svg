@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="64.000076"
+   height="64.086807"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="greatball.svg"
+   inkscape:export-filename="/home/renan/Dropbox/tutorials/Pokemon3/source/assets/images/greatball.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="3.4179647"
+     inkscape:cx="56.190014"
+     inkscape:cy="25.3672"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1366"
+     inkscape:window-height="716"
+     inkscape:window-x="1920"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-198.61162,-430.40628)">
+    <path
+       inkscape:connector-curvature="0"
+       style="fill:#ff2a2a;fill-opacity:1;stroke:none"
+       d="m 251.81929,459.54662 0,-0.99129 c -0.002,0.1687 -0.0495,0.32632 -0.0495,0.49565 0,0.16998 0.0469,0.3263 0.0495,0.49564 z"
+       id="path2994" />
+    <path
+       inkscape:connector-curvature="0"
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.79295421"
+       d="m 262.09129,460.96275 -63.0089,0.29739 c -0.009,0.23505 -0.0707,0.45756 -0.0743,0.6939 l 0,0.99129 c 0.27183,17.24109 14.28871,31.15129 31.59117,31.15129 17.38743,0 31.47911,-14.04055 31.61595,-31.39911 l 0,-0.49564 c -0.003,-0.42254 -0.10416,-0.82068 -0.12389,-1.23912 z"
+       id="path2990" />
+    <path
+       inkscape:connector-curvature="0"
+       style="fill:#030080;fill-opacity:1;stroke:#000000;stroke-width:0.79295420999999999"
+       d="m 230.59923,430.80276 c -17.06593,0 -30.87889,13.54422 -31.51684,30.45738 l 63.0089,-0.29739 c -0.79059,-16.77217 -14.52754,-30.15999 -31.49206,-30.15999 z"
+       id="path2985" />
+    <path
+       sodipodi:type="arc"
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="path3000"
+       sodipodi:cx="235.89285"
+       sodipodi:cy="453.96933"
+       sodipodi:rx="6.7857141"
+       sodipodi:ry="6.7857141"
+       d="m 242.67857,453.96933 a 6.7857141,6.7857141 0 1 1 -13.57143,0 6.7857141,6.7857141 0 1 1 13.57143,0 z"
+       transform="matrix(0.7928765,0,0,0.79303187,43.402503,101.20243)" />
+  </g>
+</svg>

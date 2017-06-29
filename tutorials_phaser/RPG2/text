@@ -1,0 +1,65 @@
+In the last tutorial, we created the BattleState for our turn-based RPG. Now, we are going to create a WorldState were the player can explore and eventually find enemies. In addition, we will improve our battle system to consider units speed. The following topics will be covered in this tutorial:
+ - Creating a WorldState which the player can navigate
+ - Creating enemy spawners that will initiate the BattleState
+ - Improve the battle system to consider units speed
+To read this tutorial, it is important that you are familiar with the following concepts:
+ - Javascript and object-oriented concepts.
+ - Basic Phaser concepts, such as: states, sprites, groups and arcade physics
+ - Creating maps using Tiled
+
+Assets copyright
+
+The monsters assets used in this tutorial are available in http://opengameart.org/content/2d-rpg-enemy-set and were created by the following artists: Brett Steele (Safir-Kreuz), Joe Raucci (Sylon), Vicki Beinhart (Namakoro), Tyler Olsen (Roots). The characters assets are available in http://opengameart.org/content/24x32-characters-with-faces-big-pack and were created by Svetlana Kushnariova (email: lana-chan@yandex.ru). All assets are available through the Creative Commons license.
+
+Creating the WorldState
+
+We are going to create a WorldState which will read a Tiled map (in JSON format) and allow the player to navigate through it. The figure below shows the map I created. Since the focus of this tutorial is not on creating Tiled maps, I'm not going into the details of it, and you can create your own or use the one provided in the source code. However, two things are important about the map creating, due to the way we are going to create WorldState:
+ 1) Any collidable tile layer must have a collision property set to true.
+ 2) All game prefabs must be defined in the objects layer and each object must contain in its properties at least: name, type, group and texture. Any additional properties must also be defined.
+The figures below show the properties of a collision layer and the player object, to illustrate those two conditions.
+
+In addition to the Tiled map, WorldState will read another JSON file, such as the one below. Notice that the JSON file must specify the assets, groups and map information.
+
+The code below shows the WorldState. The "init" method initializes the physics engine and creates the map form the JSON file. It also creates a "party_data" object which contains the stats of all player units. Notice that this object can be passed as a parameter, which will be done after each battle. 
+ 
+The "create" method must initialize the map layers and game groups and prefabs. The layers were all available in the Tiled map and were already read in the "init" method, so we just have to iterate through them creating each one. However, we must detect the collision layers (by means of the added property) and set all its tiles as collidable.
+
+The groups are easily created by iterating through the ones defined in the level JSON file. However, to create the prefabs we must iterate through each object in the objects layer and instantiate the correct prefab. The prefab instantiation is done in the "create_object" method, which also adjust the prefab position due to the different coordinates used by Tiled. To properly instantiate each prefab, we define a "prefab_classes" property in the constructor that maps each prefab type to its constructor, as we did in the BattleState. As in BattleState, this is possible because all prefabs have the same constructor.
+
+The last piece of code in the "create" method resets the player to a previously saved position. This must be done because the WorldState can be called after a BattleState, so we must keep saved the player previous position. If the battle is lost, we reset the game using the "reset_position" parameter in the "init" method.
+
+Adding the Player prefab
+
+Now we are going to add the player prefab, which can navigate through the world. The code below shows the Player prefab. In the constructor it must initialize the walking speed, animations, and physics body. Then, in the "update" method, it is controlled by the keyboard arrow keys (obtained from the "cursors" object). We move the player to a given direction if its respective arrow key is pressed and if the player is not already moving to the opposite direction. Also, when the player starts moving to a given direction it plays the corresponding animation. When the player stops, the animation stops and reset its frame to the correct stopped frame, according to its facing direction.
+
+You can already try moving the player in the WorldState. Check if the collisions are working properly. Notice that we check for collisions with all collision layers in the update method.
+
+Adding the EnemySpawner prefab
+
+The EnemySpawner will be an immovable prefab that overlaps with the player. When such overlap occur, it will check for possible enemy encounters according to their probabilities. We will start by defining the enemy encounters in the JSON level file, as shown below. Each enemy encounter has a probability and the enemy data.
+
+Now, we can create the EnemySpawner to check for one of the possible encounters. Its code is shown below. In the "update" method we check for overlaps with the player and call the "check_for_spawn" method when an overlap occure. Notice that, to call this method only once for each overlap we use the "overlapping" variable, and check for spawns only when it was false.
+
+The "check_for_spawn" method generates a random number using Phaser random data generator and compares it with the enemy encounters probabilities, choosing the first one whose probability is higher than the generated number. Notice that, for this to work the encounters must be sorted in ascending order of probability, prioritizing less likely encounters. When an encounter occurs, it calls BattleState with the correct enemy data and player party data.
+
+Updating BattleState
+
+Finally, we must update our BattleState to work with our last modifications. Instead of reading the enemy and player units from a JSON file, they will be passed as parameters in the "init" method. Then, we just have to iterate through them in the "create" method and create all their prefabs, using the same "create_prefab" method. Notice that the enemy units were stored in the enemy encounters data from the WorldState, while the player units were stored in the "party_data" variable.
+
+Now, we must properly go back to WorldState when the battle is finished. In the "next_turn" method, before making the next unit act, we check if there are remaining enemy and player units. If there are no remaining enemy units, we call an "end_battle" method and, if there ar no remaining player units we call a "game_over" method.
+
+The "end_battle" method will switch back to WorldState updating the "party_data" to reflect this battle. So, we must iterate through all player units saving their stats in the "party_data" variable. On the other hand, the "game_over" method will switch back to WorldState without sending any "party_data", which will reset it. Also, we must tell the WorldState to restart the player position, instead of keeping the last one as showed in the WorldState code. The code below shows the modifications in the BattleState.
+
+Considering units speed for the turns
+
+In this tutorial, each unit will have a speed stat, which will be used to calculate the next turn that unit will act. The code below shows the modifications in the Unit prefab, and how it calculates the next act turn based on the current turn and its speed. Notice that I used an arbitrary rule for calculating the next turn, and you can use the one you finds best.
+
+Now, we will change the BattleState to store the units in a priority queue, instead of an array. A priority queue is a data structure where all elements are always sorted, given a sorting criteria (if you're not familiar with priority queues, check this link). In our case, the sorting criteria will be the unit next acting turn, which means the first unit from the queue is the one that will act earlier. Since the priority queue is a well known data structure, we are going to use the implementation provided by Adam Hooper instead of creating our own.
+
+The code below shows the modifications in the BattleState. First, in the end of the "create" method we initialize "units" as a priority queue which compares the units act turn, and add all units to the queue, calculating their first acting turns. Then, in the "next_turn" method, we must update the current unit act turn before adding it to the "units" queue again, so it will be put in the correct position.
+
+Now, you can already try setting some speed values and see if everything is working correctly. Below is the final enemy encounters and party data I used.
+
+And now we finished this tutorial. In the next one we are going to add different actions during the battle, such as using magic and items. In addition, the player units will receive experience after each battle, being able to pass levels.
+
+

@@ -1,0 +1,50 @@
+{
+    "assets": {
+        "background_image": {"type": "image", "source": "assets/images/background.png"},
+        "message_box_image": {"type": "image", "source": "assets/images/message_box.png"},
+        "pokeball_image": {"type": "image", "source": "assets/images/pokeball.png"},
+        "pokemon_spritesheet": {"type": "spritesheet", "source": "assets/images/pokemon.png", "frame_width": 98, "frame_height": 85}
+    },
+    "groups": [
+        "background",
+        "pokemons",
+        "pokeballs",
+        "hud"
+    ],
+    "collision_groups": [
+        "pokemons",
+        "pokeballs"
+    ],
+    "prefabs": {
+        "background": {
+            "type": "background",
+            "position": {"x": 0, "y": 0},
+            "properties": {
+                "texture": "background_image",
+                "group": "background"
+            }
+        },
+        "pokeball": {
+            "type": "pokeball",
+            "position": {"x": 0.5, "y": 0.8},
+            "properties": {
+                "texture": "pokeball_image",
+                "group": "pokeballs",
+                "anchor": {"x": 0.5, "y": 0.5},
+                "pokeball_speed": 300,
+                "catching_rate": 0.3
+            }
+        },
+        "pokemon": {
+            "type": "pokemon",
+            "position": {"x": 0.5, "y": 0.6},
+            "properties": {
+                "texture": "pokemon_spritesheet",
+                "group": "pokemons",
+                "anchor": {"x": 0.5, "y": 0.5},
+                "frame": 1,
+                "fleeing_rate": 1.0
+            }
+        }
+    }
+}

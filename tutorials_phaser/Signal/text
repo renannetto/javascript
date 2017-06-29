@@ -1,0 +1,66 @@
+Sometimes in a game you want to be aware of events that occur in your game the whole time, wether it would be to save game statistics or to build an achievement system. For example, your game may need to know when an enemy is killed to save the number of killed enemies, or because there is an achievement when the player kills a given number of enemies.
+
+In this tutorial I will show how to use Phaser.Signal to listen to events in your game in order to save game statistics. At the end, I will briefly explain how to extend this concept to create an achievement system. In order to read this tutorial it is important that you are familiar with the following concepts:
+
+ - Javascript and object-oriented concepts.
+ - Basic Phaser concepts, such as: states, sprites, groups and arcade physics.
+
+Game states
+
+We're going to keep the game data in a JSON file as shown below. This file describes the game assets that must be loaded, the groups that must be created and the prefabs. We are going to create three game stats to handle this JSON file: BootState, LoadingState and LevelState.
+
+BootState and LoadingState codes are shown below. The first one simply loads this JSON file and calls LoadingState with the level data. LoadingState, by its turn, loads all game assets calling the correct Phaser method according to the asset type (for example, calling "this.load.image" to load an image).
+
+LevelState, by its turn, is responsible for creating the game groups and prefabs, as shown below. In the "create" method it starts by creating a Phaser.TileSprite to represent the space. Then it creates all game groups from the JSON file. Finally, it create all prefabs by iterating through all prefabs described in the JSON file calling the "create_prefab" method. 
+
+This method creates the correct prefab according to the prefab type. Notice that this is done because all prefabs have the same constructor, extended by the generic Prefab class shown below. Also, there is a "prefab_classes" property (in LevelState constructor) that maps each prefab type to its corresponding constructor.
+
+The GameStats plugin
+
+Now we are going to create a Phaser plugin to save game statistics by listening to phaser signals. To create a Phaser plugin we have to create a class that extends Phaser.Plugin, as shown below. The "init" method is called when the plugin is added to the game, and we use it to save all the plugin properties, such as the game stats position, text style and which signals the plugin has to listen. All this data will be loaded from the JSON level file and will be represented with the following structure:
+
+THe "listen_to_events" method is responsible for making the plugin to listen game events. It iterates through all listeners descriptions (saved in the "init" method) and creates the listeners for each one. Notice that each listener describes the group the plugin have to listen, then the plugin has to iterate through all sprites in that group to listen to each one separately. The callback of all events is the "save_stat" method, which receives as parameters the sprite that dispatched the event, the stat name and the value to be increased. This method, simply increase the correct game stat with the given value. Notice that the "game_stats" object was already initialized in the "init" method, with the initial values from "game_stats_data".
+
+Finally, we are going to add a "show_stats" method, which will be called in the end of the game to show the final values. This method iterates through all game stats creating a Phaser.Text to each one that shows the final value. Notice that the initial position of the texts and their style was saved in the "init" method, while its final text is the text of the game stat and its final value.
+
+Now that we have the GameStats plugin created, we have to add it to our game. We do that by calling "this.game.plugins.add" in the end of LevelState "create" method. The parameters of this method are the plugin class, the game state and the game stats data, obtained from the JSON level file.
+
+Game prefabs
+
+To verify if our GameStats plugin is working correctly, we have to create the prefabs for our game. In this tutorial I will test this plugin in a simple space shooter game, but feel free to implement it in your own game.
+
+The prefabs we are going to create are the Ship, Bullet, Enemy and EnemySpawner. All of them extends the Prefab class shown before.
+
+The Ship prefab will allow the player to move the ship left and right, and will constantly shoot bullets at its enemies. The constructor initializes a timer that calls the "shoot" method according to the shoot rate. This method, by its turn, starts by checking if there is already a dead bullet that can be reused. If there is one, it just resets its position to the current ship position. Ohterwise, it creates a new bullet. 
+
+The "update" method is responsible for moving the ship. The ship moves according to the mouse pointer. If the player clicks on the screen the ship moves towards the mouse cursor position. This is done by getting the "activePointer" position. 
+
+Also, in the update method we have to check when the ship overlaps with enemy bullets and, if so, kill it. When the ship is killed, the game should end, which is done in the "kill" method. The "game_over" method is shown below, and it simply show the final game statistics from the GameStats plugin.
+
+The Bullet prefab is very simple, as shown below. It simply creates the bullet physical body and sets its velocity.
+
+The Enemy prefab is similar to the Ship, where the main difference is that it only moves vertically in the screen. It sets its velocity in the constructor and creates the shoot timer, like the Ship. Its "shoot" method is almost the same as the Ship one, except the bullets are from the "enemy_bullets" group, and they have different direction and velocity. In the "update" method it only has to check for collision with the player bullets.
+
+Notice that in the Enemy prefab "kill" method we have to pause the shoot timer, and in the "reset" method we have to resume it and set the enemy velocity again. This happens because in our game enemies will be constantly spawning, and we want to reuse dead enemies, so we have to properly handle timers and the physical body.
+
+Finally, the EnemySpawner is shown below. In the constructor it starts a loop event that calls the "spawn" method. This method is responsible for creating enemies using the same strategy we are using to create the bullets: first, it checks if there is a dead enemy to reuse and if so, reset it to the desired position. Otherwise, it creates a new enemy. The main difference here is that the position is random between 10% and 90% of the game world width. We generate this random position using Phaser RandomDataGenerator (you can check the documentation if you are not familiar with it http://phaser.io/docs/2.4.6/Phaser.RandomDataGenerator.html).
+
+By now, you can try playing the game without the events, so it will work but the game statistics won't be saved. This way you can check if everything is working before moving to add the game signals.
+
+Adding the signals
+
+We are going to create two signals to save game statistics: onShoot, dispatched when the ship shoots, and onSpawn, dispatched when the EnemySpawner spawns an enemy.
+
+The onShoot signal is create in the Ship constructor, and is dispatched in the "shoot" method, as shown below. The onSpawn signal, by its turn is created in the constructor of EnemySpawner, and dispatched in the "spawn" method. Notice that both signal have to send as parameter during dispatching the sprite, since the GameStats plugin is expecting it.
+
+Finally, we call the "listen_to_events" method from the plugin after adding it to LevelState, so it will add the listeners described in the JSON file (shown before), which will be called when the new signals are dispatched.
+
+By now, you can already try playing the game with the game statistics. Check if all statistics are being correctly saved, and try adding different signals.
+
+Creating an achievement system
+
+Before finishing the tutorial, I would like to briefly show how easily you can change the GameStats plugin to an GameAchievements plugin. There are two main differences between those plugins:
+ 1) For the GameAchievements plugin it would be interesting to have listeners to specific prefabs, not only groups. For example, the game might have an achievement when a given boss is defeated.
+ 2) The callback of the listeners in the GameAchievements plugin would be more complex than simply saving a game statistic, so it will probably be necessary to have different callbacks for different achivements.
+
+Apart from those two differences, the signals and listeners can be created the same way. Try creating achievements for your game, and see how they work!

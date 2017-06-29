@@ -1,0 +1,71 @@
+In the previous tutorial we procedurally created a dungeon with multiple rooms, allowing our hero to navigate through it. In this tutorial, we are going to populate the rooms with obstacles, enemies and add an exit, so the hero can leave the dungeon.
+
+The following topics will be covered in this tutorial:
+ - A strategy to procedurally populate rooms with objects
+ - Populating the dungeon rooms with obstacle tiles
+ - Populating the dungeon rooms with enemies
+ - Adding an exit in one room so the player can leave the dungeon
+ - Locking the room doors until all enemies have been defeated
+
+To read this tutorial, it is important that you're familiar with the following concepts:
+ - Javascript and object-oriented concepts.
+ - Basic Phaser concepts, such as: states, sprites, groups and arcade physics
+ - Creating maps using Tiled
+
+Strategy to populate the rooms
+
+Given an object and its dimensions (width and height) we need to find a free region in the room that fits the object. We do that by looking random regions with the object dimensions in the room until we find one that is free. Since most of the room is free, this process is typically fast.
+
+The "find_free_region" method below belongs to the Room class and is responsible for doing that. It runs a loop that starts by finding a random position that will be the center of the region. Then, it add the coordinates of the other positions that will be occupied by the object, according to its dimensions. Finally, it checks if the whole region is free. If so, we're done. Otherwise, it keeps running the loop.
+
+The "is_free" method iterate through all coordinates and check the "population" property. This property starts as empty and is filled everytime an object is added to the room. So, if there is another object in that position, the method will return that the region is not free.
+
+Population data
+
+We will store the population in a JSON file like the one below. You can use the same, provided in the source code or create your own. The important thing is that this file describe two kinds of population: tiles and prefabs. For each one, you can also define different kinds (for example, you can add enemies and items in the prefabs section). To simplify the tutorial, I only added one type of tile and prefab. Finally, for each tile type you must define the layer it will use, the minimum and maximum number of objects that will be created, the possible sizes and possible tiles. On the other hand, for each prefab type you must define the minimum and maximum number of objects and the possible prefabs.
+
+The population JSON file will be loaded in the DungeonState, since it will be used during the dungeon generation.
+
+Populating rooms with obstacle tiles
+
+We will start by populating our rooms with obstacle tiles. Each obstacle will use a random tile index (from a list of tiles) and will have random dimensions (from a list of possible sizes).
+
+The code below show the "populate_tiles" method. For each tile, it randomly picks a tile index, a size (available from the population data) and finds a free region. Then it adds all coordinates of this region to a "tiles" object. This object will be read by the RoomState to add the tiles in the game.
+
+The "populate" method from the Room class is shown below. First, it initializes the "population" property as empty, so that all coordinates are initially free. Then, it iterates through all obstacles in the population data creating them. For each obstacle, it chooses a random number of obstacles and call the "populate_tiles" method.
+
+We have to change the "generate_dungeon" method in the Dungeon class to load the population data and populate the rooms, as shown below.
+
+Now, we have to add the following code at the end of the "create" method in RoomState. This code will iterate through all tiles in the "tiles" object and call the "putTile" method from Phaser.Tilemap for each one. This method allows us to add new tiles to a previously loaded Tiled map. There is another very important change you have to make in this class. In the previous tutorial of this series, we set the collision of layers for only the tiles in that layers. Since now we are going to add new tiles to an already created layer, we have to change this code to set the collision for all tiles, as shown below.
+
+You can already try playing the demo with the obstacles.
+
+Populating rooms with enemies
+
+Populating the rooms with enemies will be very similar to how we did with obstacles, but we must save the prefab information instead of tiles. Also, to simplify the code we will assume all prefabs occupy a single tile.
+
+The code below shows the "populate_prefabs" method. Instead of picking a random tile index, it picks a random prefab, and it finds the a random region with size of only one tile. Then it adds the prefab name, type, position and properties to a "prefab" object, which will be read by RoomState as well.
+
+We change the "populate" method as below to create the prefabs. Similarly to what we did with the tiles, we iterate through all prefab population data, choose a random number of prefabs and call the "populate_prefabs" method.
+
+Finally, we add the following piece of code to the "create" method in RoomState, so it creates the prefabs after adding the obstacle tiles. This code simply goes through all added prefabs and create them using its "create_prefab" method.
+
+To be able to verify if everything is working by now, you have to create a Enemy prefab so the demo can run, as shown below. Remember that every time you create a new prefab you must add it to the "prefab_classes" property in RoomState. By now you can already try playing the demo with the enemies as well.
+
+Adding the dungeon exit
+
+Before adding the exit, we must create its prefab, as shown below. The Exit prefab simply checks for collisions with the hero and, if it detects one, it restarts the demo by calling the DungeonState again.
+
+We will add the exit of the dungeon in the furthest room from the initial one. To do that, we must change the "generate_dungeon" method to keep track of the furthest room, as shown below. When populating a room, we calculate its distance to the initial room and save the coordinate of the furthest one. Then, after populating all rooms we add the exit to the room with the final room coordinate.
+
+Try playing the demo now and search for the exit.
+
+Fighting enemies
+
+Our hero still can't defeat any enemies, so you must add code to do that. Since this is not the focus of this tutorial, I will only make the hero kill the enemy when they overlap, as shown below. For an actual game you could add attack and defense stats and calculate the damage based on them. Feel free to improve this code in order to make something fun.
+
+Now that our hero can defeat enemies, we must lock the rooms (and the exit) until all enemies in that room have been defeated. To do that, we simply check if the enemies group has no alive objects in the "enter_door" and "reach_exit" methods, as shown below.
+
+Now, you can try playing the demo again and check if you can find the dungeon exit.
+
+And that concludes our tutorial series about procedurally generated content. Let me know your opinions in the comments section!

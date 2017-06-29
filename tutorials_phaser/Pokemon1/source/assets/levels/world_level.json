@@ -1,0 +1,15 @@
+{
+    "assets": {
+        "map_tileset": {"type": "image", "source": "assets/images/open_tileset.png"},
+        "pokemon_spritesheet": {"type": "spritesheet", "source": "assets/images/pokemon.png", "frame_width": 98, "frame_height": 85},
+        
+        "world_tilemap": {"type": "tilemap", "source": "assets/maps/world.json"}
+    },
+    "groups": [
+        "spawns"
+    ],
+    "map": {
+        "key": "world_tilemap",
+        "tilesets": ["map_tileset"]
+    }
+}
